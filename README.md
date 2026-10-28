@@ -6,6 +6,7 @@ An interactive, animated explainer for the vector math behind games, shaders and
 
 | # | Topic | What you can do |
 |---|-------|-----------------|
+| | **Vectors** | |
 | 01 | Directions | Drag a player and an enemy; see `Q − P`, its length and the normalized direction |
 | 02 | Normalization | Drag `v` and watch `n = v / |v|` stay on the unit circle |
 | 03 | Dot product | Drag two unit vectors; read `A · B = cos θ` on a −1…1 scale |
@@ -26,7 +27,7 @@ An interactive, animated explainer for the vector math behind games, shaders and
 
 URL options:
 
-- `?topic=dot` opens on a tab (`dir`, `norm`, `dot`, `cross`, `lerp`, `slerp`, `inv`, `gimbal`, `quat`)
+- `?topic=dot` opens on a tab, and its category (`dir`, `norm`, `dot`, `cross`, `lerp`, `slerp`, `inv`, `gimbal`, `quat`)
 - `?speed=0.5` changes the animation speed
 - `?grid=0` hides the background grid
 
