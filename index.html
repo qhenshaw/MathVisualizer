@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vector Lab</title>
+<meta name="description" content="Interactive, animated explainer for vector math: directions, normalization, dot and cross products, lerp, slerp, inverse lerp, gimbal lock and quaternions.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230E1117'/%3E%3Cpath d='M7 25 L24 8' stroke='%23F06FB0' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M15 8 H24 V17' fill='none' stroke='%23F06FB0' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#0E1117}
+a{color:#5AB8F5}a:hover{color:#8FD0FA}
+input[type=range]{accent-color:#F06FB0;width:100%;height:28px;margin:0;cursor:pointer}
+button{font-family:inherit}
+button:focus-visible{outline:2px solid #F06FB0;outline-offset:2px}
+</style>
+</head>
+<body>
+<div id="app"><p style="font-family: system-ui, sans-serif; color: #B4BDCC; padding: 32px">Loading Vector Lab…</p></div>
+<template id="dc-template">
+<div style="min-height: 100vh; background: #0E1117; color: #E6EAF2; font-family: 'Space Grotesk', system-ui, sans-serif; padding: 32px 20px 48px; box-sizing: border-box">
+<div style="max-width: 1360px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px">
+
+<header style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 8px; max-width: 760px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #F06FB0">Interactive primer · 2D &amp; 3D vector math</p>
+<h1 style="margin: 0; font-size: 44px; line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; color: #F2F4F8">Vector Lab</h1>
+<p style="margin: 0; font-size: 16px; line-height: 1.5; color: #B4BDCC">Nine core ideas behind every game engine, shader and animation rig. Drag the handles, scrub the sliders, and watch the numbers follow.</p>
+</div>
+<div style="display: flex; gap: 10px; flex-wrap: wrap">
+<button type="button" onClick="{{togglePlay}}" aria-label="{{playLabel}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: #F06FB0; color: #0E1117; font-size: 15px; font-weight: 600; cursor: pointer">
+<sc-if value="{{playing}}" hint-placeholder-val="{{true}}">
+<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="3.5" height="12" rx="1" fill="#0E1117"></rect><rect x="9.5" y="2" width="3.5" height="12" rx="1" fill="#0E1117"></rect></svg>
+</sc-if>
+<sc-if value="{{paused}}" hint-placeholder-val="{{false}}">
+<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="#0E1117"></path></svg>
+</sc-if>
+<span>{{playText}}</span>
+</button>
+<button type="button" onClick="{{reset}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid #2E3748; background: transparent; color: #E6EAF2; font-size: 15px; font-weight: 500; cursor: pointer">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#E6EAF2" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 8a5.5 5.5 0 1 0 1.7-4"></path><path d="M2.5 2.5v3h3"></path></svg>
+<span>Reset</span>
+</button>
+</div>
+</header>
+
+<nav aria-label="Topics" style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="8">
+<button type="button" onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid {{t.bd}}; background: {{t.bg}}; color: {{t.fg}}; font-size: 14px; font-weight: 600; cursor: pointer">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; opacity: 0.75">{{t.num}}</span>
+<span>{{t.label}}</span>
+</button>
+</sc-for>
+</nav>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+
+<section aria-label="Visualization" style="flex: 3 1 560px; min-width: 0; background: #131824; border: 1px solid #232B3A; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; padding: 2px 6px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #E6EAF2">{{stageTitle}}</span>
+<span style="font-size: 13px; color: #A3ADBF">{{hint}}</span>
+</div>
+<svg viewBox="0 0 640 480" role="img" aria-label="{{stageTitle}}" onPointerMove="{{onMove}}" onPointerUp="{{onUp}}" onPointerCancel="{{onUp}}" style="width: 100%; height: auto; display: block; touch-action: none; border-radius: 10px; font-family: 'JetBrains Mono', monospace; user-select: none">
+<rect x="0" y="0" width="640" height="480" fill="#0B0F16"></rect>
+<sc-for list="{{scene.grid}}" as="g" hint-placeholder-count="0"><line x1="{{g.x1}}" y1="{{g.y1}}" x2="{{g.x2}}" y2="{{g.y2}}" stroke="{{g.stroke}}" stroke-width="{{g.sw}}"></line></sc-for>
+<sc-for list="{{scene.polys}}" as="p" hint-placeholder-count="0"><polygon points="{{p.pts}}" fill="{{p.fill}}" fill-opacity="{{p.fop}}" stroke="{{p.stroke}}" stroke-width="{{p.sw}}" stroke-linejoin="round"></polygon></sc-for>
+<sc-for list="{{scene.rings}}" as="c" hint-placeholder-count="0"><circle cx="{{c.cx}}" cy="{{c.cy}}" r="{{c.r}}" fill="none" stroke="{{c.stroke}}" stroke-width="{{c.sw}}" stroke-dasharray="{{c.dash}}" opacity="{{c.op}}"></circle></sc-for>
+<sc-for list="{{scene.paths}}" as="p" hint-placeholder-count="0"><path d="{{p.d}}" fill="none" stroke="{{p.stroke}}" stroke-width="{{p.sw}}" stroke-dasharray="{{p.dash}}" opacity="{{p.op}}" stroke-linecap="round"></path></sc-for>
+<sc-for list="{{scene.lines}}" as="l" hint-placeholder-count="0"><line x1="{{l.x1}}" y1="{{l.y1}}" x2="{{l.x2}}" y2="{{l.y2}}" stroke="{{l.stroke}}" stroke-width="{{l.sw}}" stroke-dasharray="{{l.dash}}" opacity="{{l.op}}" stroke-linecap="round"></line></sc-for>
+<sc-for list="{{scene.arrows}}" as="a" hint-placeholder-count="0"><g opacity="{{a.op}}"><line x1="{{a.x1}}" y1="{{a.y1}}" x2="{{a.x2}}" y2="{{a.y2}}" stroke="{{a.stroke}}" stroke-width="{{a.sw}}" stroke-linecap="round"></line><polygon points="{{a.pts}}" fill="{{a.stroke}}" stroke="{{a.stroke}}" stroke-width="1" stroke-linejoin="round"></polygon></g></sc-for>
+<sc-for list="{{scene.dots}}" as="d" hint-placeholder-count="0"><circle cx="{{d.cx}}" cy="{{d.cy}}" r="{{d.r}}" fill="{{d.fill}}" stroke="{{d.stroke}}" stroke-width="{{d.sw}}"></circle></sc-for>
+<sc-for list="{{scene.labels}}" as="t" hint-placeholder-count="0"><text x="{{t.x}}" y="{{t.y}}" fill="{{t.fill}}" font-size="{{t.size}}" font-weight="{{t.weight}}" text-anchor="{{t.anchor}}" stroke="#0B0F16" stroke-width="4" stroke-linejoin="round" paint-order="stroke">{{t.text}}</text></sc-for>
+<sc-for list="{{scene.handles}}" as="h" hint-placeholder-count="0"><g onPointerDown="{{h.down}}" style="cursor: grab"><circle cx="{{h.cx}}" cy="{{h.cy}}" r="22" fill="#FFFFFF" fill-opacity="0.001"></circle><circle cx="{{h.cx}}" cy="{{h.cy}}" r="14" fill="{{h.fill}}" fill-opacity="0.18"></circle><circle cx="{{h.cx}}" cy="{{h.cy}}" r="7" fill="{{h.fill}}" stroke="#0B0F16" stroke-width="2.5"></circle></g></sc-for>
+</svg>
+<sc-if value="{{is.dot}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 640 76" role="img" aria-label="Dot product result on a scale from minus 1 to 1" style="width: 100%; height: auto; display: block; font-family: 'JetBrains Mono', monospace">
+<rect x="0" y="0" width="640" height="76" rx="10" fill="#0B0F16"></rect>
+<line x1="40" y1="40" x2="600" y2="40" stroke="#2E3748" stroke-width="2"></line>
+<line x1="40" y1="34" x2="40" y2="46" stroke="#4A556B" stroke-width="1.5"></line>
+<line x1="180" y1="36" x2="180" y2="44" stroke="#4A556B" stroke-width="1.5"></line>
+<line x1="320" y1="30" x2="320" y2="50" stroke="#4A556B" stroke-width="1.5"></line>
+<line x1="460" y1="36" x2="460" y2="44" stroke="#4A556B" stroke-width="1.5"></line>
+<line x1="600" y1="34" x2="600" y2="46" stroke="#4A556B" stroke-width="1.5"></line>
+<text x="40" y="66" text-anchor="middle" fill="#8C97AB" font-size="11">−1</text>
+<text x="180" y="66" text-anchor="middle" fill="#8C97AB" font-size="11">−0.5</text>
+<text x="320" y="66" text-anchor="middle" fill="#8C97AB" font-size="11">0</text>
+<text x="460" y="66" text-anchor="middle" fill="#8C97AB" font-size="11">0.5</text>
+<text x="600" y="66" text-anchor="middle" fill="#8C97AB" font-size="11">1</text>
+<sc-if value="{{r.hasOut}}" hint-placeholder-val="{{false}}"><line x1="320" y1="40" x2="{{r.outX2}}" y2="40" stroke="{{r.barColor}}" stroke-width="8" stroke-linecap="round"></line></sc-if>
+<text x="{{r.outX}}" y="20" text-anchor="middle" fill="{{r.barColor}}" font-size="14" font-weight="600">A · B = {{r.dot}}</text>
+</svg>
+</sc-if>
+</section>
+
+<aside aria-label="Explanation" style="flex: 2 1 340px; min-width: 0; background: #131824; border: 1px solid #232B3A; border-radius: 16px; padding: 24px; box-sizing: border-box">
+
+<sc-if value="{{is.dir}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">01 · Vector directions</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">To aim at the enemy, subtract the player</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">The player stands at P and the enemy at Q. Q − P gives the offset d (dashed): its length is how far away the enemy is. Dividing d by its length gives the direction (green arrow): a unit vector, always length 1, that only says which way to face. Multiply it by a speed and you get movement toward the enemy that does not depend on how far away they are.</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">d = Q − P = (Qx − Px, Qy − Py)
+|d| = √(dx² + dy²)
+dir = d / |d|      |dir| = 1
+θ = atan2(dy, dx)</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Player P</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.P}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Enemy Q</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D">{{r.Q}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">d = Q − P</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.d}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Distance to enemy |d|</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.len}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Direction d / |d|</span><span style="font-family: 'JetBrains Mono', monospace; color: #5EE0A8; font-weight: 600">{{r.dir}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Heading θ</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0">{{r.ang}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">Compass</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.compass}}</span></div>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> aiming at a target, steering, line-of-sight checks, velocity and knockback directions.</p>
+</div>
+</sc-if>
+
+<sc-if value="{{is.norm}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">02 · Normalization</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Keep the direction, throw away the length</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Dividing a vector by its own length shrinks or stretches it onto the unit circle. The result n is a unit vector: length exactly 1, pointing the same way.</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">|v| = √(vx² + vy²)
+n = v / |v| = (vx / |v|, vy / |v|)
+|n| = 1</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">v</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D">{{r.v}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Length |v|</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.len}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">n = v / |v|</span><span style="font-family: 'JetBrains Mono', monospace; color: #5EE0A8">{{r.n}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">Length |n|</span><span style="font-family: 'JetBrains Mono', monospace; color: #5EE0A8">{{r.nlen}}</span></div>
+</div>
+<sc-if value="{{r.zero}}" hint-placeholder-val="{{false}}">
+<p style="margin: 0; padding: 12px 14px; border-radius: 10px; background: #2A1A22; color: #F7B6D3; font-size: 14px; line-height: 1.5">The zero vector has no direction, so it cannot be normalized. Real code checks |v| against a small epsilon before dividing.</p>
+</sc-if>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> movement at constant speed regardless of input length, surface normals for lighting, and any formula that expects pure direction.</p>
+</div>
+</sc-if>
+
+<sc-if value="{{is.dot}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">03 · Dot product</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">How much do two vectors agree?</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">The dot product multiplies matching components and adds them up. Here A and B are normalized (length 1, on the dashed unit circle), so the dot product is exactly cos θ: the length of B’s shadow on A, where the dashed line meets A’s line. The scale below the graph shows the result, green when positive and pink when negative. Positive means they point the same way, zero means perpendicular, negative means opposed.</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">A · B = Ax·Bx + Ay·By
+A · B = |A| |B| cos θ
+|A| = |B| = 1  →  A · B = cos θ
+proj = (A · B) A</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">A · B</span><span style="font-family: 'JetBrains Mono', monospace; color: #B4BDCC; text-align: right">{{r.expr}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Result</span><span style="font-family: 'JetBrains Mono', monospace; color: {{r.barColor}}; font-weight: 600">{{r.dot}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">|A| · |B|</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.lens}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">Angle θ</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.theta}}</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; font-size: 13px; color: #A3ADBF"><span>cos θ = Â · B̂</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.cos}}</span></div>
+<div style="position: relative; height: 14px; border-radius: 7px; background: #0B0F16; border: 1px solid #232B3A">
+<div style="position: absolute; left: 50%; top: -3px; width: 1px; height: 20px; background: #4A556B"></div>
+<div style="position: absolute; top: 1px; left: {{r.barLeft}}%; width: {{r.barW}}%; height: 12px; border-radius: 6px; background: {{r.barColor}}"></div>
+</div>
+<div style="display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8C97AB"><span>−1 opposite</span><span>0 perpendicular</span><span>+1 same</span></div>
+<p style="margin: 0; font-size: 15px; font-weight: 600; color: {{r.barColor}}">{{r.verdict}}</p>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> “is the enemy in front of me?”, field-of-view cones, diffuse lighting (N · L), projecting velocity onto a slope.</p>
+</div>
+</sc-if>
+
+<sc-if value="{{is.cross}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">04 · Cross product</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">A new vector, perpendicular to both</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">In 3D, A × B points straight out of the plane that A and B span, following the right-hand rule. Its length equals the area of the parallelogram they make, so it shrinks to zero when A and B line up. Order matters: B × A flips it. With unit vectors A and B, the length is simply sin θ.</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">A × B = (AyBz − AzBy,
+         AzBx − AxBz,
+         AxBy − AyBx)
+|A × B| = |A| |B| sin θ
+|A| = |B| = 1  →  |A × B| = sin θ</div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<p style="margin: 0; font-size: 13px; line-height: 1.5; color: #A3ADBF">A and B are normalized (length 1). Drag their tips to turn them around the floor; use the sliders to tilt them up or down.</p>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Elevation of A</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D">{{r.az}}</span></span><input type="range" min="-80" max="80" step="1" value="{{r.azVal}}" onChange="{{set.crossAz}}"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Elevation of B</span><span style="font-family: 'JetBrains Mono', monospace; color: #5AB8F5">{{r.bz}}</span></span><input type="range" min="-80" max="80" step="1" value="{{r.bzVal}}" onChange="{{set.crossBz}}"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>View angle</span><span style="font-family: 'JetBrains Mono', monospace; color: #E6EAF2">{{r.yawIn}}</span></span><input type="range" min="-180" max="180" step="1" value="{{r.yawVal}}" onChange="{{set.crossYaw}}"></label>
+<button type="button" onClick="{{swapCross}}" style="align-self: flex-start; min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #2E3748; background: #1A2030; color: #E6EAF2; font-size: 14px; font-weight: 600; cursor: pointer">Swap order → {{r.swapTo}}</button>
+</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">A</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D">{{r.A}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">B</span><span style="font-family: 'JetBrains Mono', monospace; color: #5AB8F5">{{r.B}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">{{r.name}}</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0; font-weight: 600">{{r.C}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Angle between</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.angle}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">Length = parallelogram area</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.area}}</span></div>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> surface normals from two triangle edges, building a camera’s right/up axes, torque, and telling left from right (sign of the z-component in 2D).</p>
+</div>
+</sc-if>
+
+<sc-if value="{{is.lerp}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">05 · Lerp</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Linear interpolation: a slider between two values</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Lerp blends A into B by a fraction t. At t = 0 you get A, at t = 1 you get B, and everything in between lies on the straight line joining them. It works on numbers, points and colors alike. The small dots mark t = 0, 0.1, … 1; switch on smoothstep to see easing bunch them up at the ends.</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">lerp(A, B, t) = A + (B − A) · t
+             = (1 − t) · A + t · B</div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>t</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0">{{r.t}}</span></span><input type="range" min="0" max="1" step="0.01" value="{{r.tVal}}" onChange="{{set.lerpT}}"></label>
+<div role="group" aria-label="Easing" style="display: flex; gap: 8px; flex-wrap: wrap">
+<button type="button" onClick="{{easeLinear}}" aria-pressed="{{r.linPressed}}" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid {{r.linBd}}; background: {{r.linBg}}; color: {{r.linFg}}; font-size: 14px; font-weight: 600; cursor: pointer">Linear t</button>
+<button type="button" onClick="{{easeSmooth}}" aria-pressed="{{r.smPressed}}" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid {{r.smBd}}; background: {{r.smBg}}; color: {{r.smFg}}; font-size: 14px; font-weight: 600; cursor: pointer">Smoothstep t² (3 − 2t)</button>
+</div>
+</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">A · B</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.AB}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">t used (after easing)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.te}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">P = lerp(A, B, t)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0; font-weight: 600">{{r.P}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">lerp(0, 100, t)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.num}}</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 13px; color: #A3ADBF">The same t applied to color, per RGB channel</span>
+<div style="position: relative; height: 36px; border-radius: 8px; background: linear-gradient(90deg, #F5B83D, #5AB8F5)">
+<div style="position: absolute; top: -4px; left: {{r.pct}}%; width: 4px; height: 44px; margin-left: -2px; border-radius: 2px; background: #F2F4F8"></div>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #F2F4F8"><span style="width: 22px; height: 22px; border-radius: 6px; border: 1px solid #2E3748; background: {{r.color}}"></span><span>{{r.color}}</span></div>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> tweening UI and cameras, blending colors, health-bar fills, smoothing (x = lerp(x, target, k) each frame).</p>
+</div>
+</sc-if>
+
+<sc-if value="{{is.slerp}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">06 · Slerp</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Spherical lerp: travel along the arc, not the chord</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Lerping two unit vectors cuts straight across the circle (grey chord), so the result gets shorter in the middle. Slerp instead rotates at a constant angular rate along the shortest arc and stays length 1 the whole way. The pink ticks mark t = 0.1, 0.2, … and sit evenly spaced along the arc.</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">Ω = acos(A · B)
+slerp(A, B, t) = sin((1 − t)Ω) / sin Ω · A
+               + sin(tΩ) / sin Ω · B</div>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>t</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0">{{r.t}}</span></span><input type="range" min="0" max="1" step="0.01" value="{{r.tVal}}" onChange="{{set.slerpT}}"></label>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Angle Ω between A and B</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.omega}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="display: flex; align-items: center; gap: 8px; color: #A3ADBF"><span style="width: 10px; height: 10px; border-radius: 5px; background: #F06FB0"></span>slerp angle (t · Ω)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0; font-weight: 600">{{r.sAng}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="display: flex; align-items: center; gap: 8px; color: #A3ADBF"><span style="width: 10px; height: 10px; border-radius: 5px; background: #8C97AB"></span>plain lerp length</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.lLen}}</span></div>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> rotating a turret or camera toward a target at steady speed, blending orientations between animation keyframes.</p>
+</div>
+</sc-if>
+
+<sc-if value="{{is.inv}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">07 · Inverse lerp</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Given a value, how far along the range is it?</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Inverse lerp undoes lerp: it turns a value v back into the fraction t between a and b. Feed that t into a lerp over a different range and you have a remap, which is just a straight line through (a, c) and (b, d). Drag a, b and v along the bottom axis and c, d along the side axis. When v leaves [a, b], t leaves [0, 1] and you slide onto the dashed extension.</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">t = invLerp(a, b, v) = (v − a) / (b − a)
+remap(v) = lerp(c, d, invLerp(a, b, v))</div>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Value v</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0">{{r.v}}</span></span><input type="range" min="0" max="100" step="1" value="{{r.vVal}}" onChange="{{set.invV}}"></label>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Input range [a, b]</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D">{{r.ab}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">t</span><span style="font-family: 'JetBrains Mono', monospace; color: #B4BDCC; text-align: right">{{r.expr}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">= t</span><span style="font-family: 'JetBrains Mono', monospace; color: #5EE0A8; font-weight: 600">{{r.t}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Output range [c, d]</span><span style="font-family: 'JetBrains Mono', monospace; color: #5AB8F5">{{r.cd}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">remap(v)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0; font-weight: 600">{{r.out}}</span></div>
+</div>
+<p style="margin: 0; padding: 12px 14px; border-radius: 10px; background: {{r.noteBg}}; color: {{r.noteFg}}; font-size: 14px; line-height: 1.5">{{r.note}}</p>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> turning distance into fade-out amount, mapping a joystick dead zone, converting a value into a progress bar or a color ramp.</p>
+</div>
+</sc-if>
+
+<sc-if value="{{is.gimbal}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">08 · Gimbal lock</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Why three angles are not enough</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Euler angles rotate in a fixed order: yaw around the world’s up axis, then pitch, then roll around the object’s own nose. Each ring shows one of those rotations. Pitch the nose straight up to 90° and the pink roll ring swings into the same plane as the amber yaw ring. Yaw and roll now spin the object around the same axis, and one direction of rotation is gone until you pitch back down.</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">R = Rz(yaw) · Ry(pitch) · Rx(roll)
+roll axis = R · (1, 0, 0)
+pitch = ±90° → roll axis ∥ yaw axis</div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Yaw (outer ring)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D">{{r.yaw}}</span></span><input type="range" min="-180" max="180" step="1" value="{{r.yawVal}}" onChange="{{set.gYaw}}"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Pitch (middle ring)</span><span style="font-family: 'JetBrains Mono', monospace; color: #5AB8F5">{{r.pitch}}</span></span><input type="range" min="-90" max="90" step="1" value="{{r.pitchVal}}" onChange="{{set.gPitch}}"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Roll (inner ring)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0">{{r.roll}}</span></span><input type="range" min="-180" max="180" step="1" value="{{r.rollVal}}" onChange="{{set.gRoll}}"></label>
+<button type="button" onClick="{{toggleLock}}" style="align-self: flex-start; min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #2E3748; background: #1A2030; color: #E6EAF2; font-size: 14px; font-weight: 600; cursor: pointer">{{r.lockBtn}}</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; font-size: 13px; color: #A3ADBF"><span>Yaw and roll axis alignment |yaw · roll|</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.align}}</span></div>
+<div style="position: relative; height: 12px; border-radius: 6px; background: #0B0F16; border: 1px solid #232B3A">
+<div style="position: absolute; top: 1px; left: 0; width: {{r.alignPct}}%; height: 10px; border-radius: 5px; background: {{r.alignColor}}"></div>
+</div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">Independent rotation axes</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.dof}}</span></div>
+</div>
+<p style="margin: 0; padding: 12px 14px; border-radius: 10px; background: {{r.noteBg}}; color: {{r.noteFg}}; font-size: 14px; line-height: 1.5">{{r.note}}</p>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Why it matters</strong> cameras clamp pitch to ±89°, interpolating Euler angles near the lock flips wildly, and it is the main reason engines store orientation as quaternions.</p>
+</div>
+</sc-if>
+
+<sc-if value="{{is.quat}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">09 · Quaternions</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">A rotation packed into four numbers</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">A unit quaternion stores an axis u and an angle θ: the vector part is the axis scaled by sin(θ/2), the scalar part is cos(θ/2). It rotates the cube around the amber axis with no gimbal lock, composes by multiplication and slerps smoothly. Notice the half angle: after one full turn q has become −q, which is the same orientation. It takes 720° to get back to the same numbers.</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">q = (w, x, y, z)
+  = (cos θ⁄2,  u · sin θ⁄2)
+v′ = q v q⁻¹      |q| = 1</div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Angle θ</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0">{{r.angle}}</span></span><input type="range" min="0" max="720" step="1" value="{{r.angleVal}}" onChange="{{set.qAngle}}"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Axis heading</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D">{{r.yaw}}</span></span><input type="range" min="0" max="360" step="1" value="{{r.yawVal}}" onChange="{{set.qYaw}}"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Axis elevation</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D">{{r.pitch}}</span></span><input type="range" min="-90" max="90" step="1" value="{{r.pitchVal}}" onChange="{{set.qPitch}}"></label>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; font-size: 13px; color: #A3ADBF"><span>Axis u</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D">{{r.axis}}</span></div>
+<sc-for list="{{r.comps}}" as="c" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 12px">
+<span style="width: 16px; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #E6EAF2">{{c.name}}</span>
+<div style="position: relative; flex: 1 1 auto; height: 12px; border-radius: 6px; background: #0B0F16; border: 1px solid #232B3A">
+<div style="position: absolute; left: 50%; top: -3px; width: 1px; height: 18px; background: #4A556B"></div>
+<div style="position: absolute; top: 1px; left: {{c.left}}%; width: {{c.w}}%; height: 10px; border-radius: 5px; background: {{c.color}}"></div>
+</div>
+<span style="width: 58px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #F2F4F8">{{c.val}}</span>
+</div>
+</sc-for>
+<div style="display: flex; justify-content: space-between; font-size: 13px; color: #A3ADBF"><span>|q|</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8">{{r.norm}}</span></div>
+</div>
+<p style="margin: 0; padding: 12px 14px; border-radius: 10px; background: {{r.noteBg}}; color: {{r.noteFg}}; font-size: 14px; line-height: 1.5">{{r.note}}</p>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> every transform in Unity, Unreal and Godot, character and camera rigs, IMU sensor fusion, spacecraft attitude.</p>
+</div>
+</sc-if>
+
+</aside>
+</div>
+</div>
+</div>
+</template>
+<noscript><p style="font-family: system-ui, sans-serif; color: #E6EAF2; padding: 32px">Vector Lab needs JavaScript to run.</p></noscript>
+<script type="module">
+import { DCLogic, mount } from './runtime.js';
+
+class Component extends DCLogic {
+  C = { A: '#F5B83D', B: '#5AB8F5', R: '#F06FB0', U: '#5EE0A8', muted: '#8C97AB', faint: '#4A556B', text: '#E6EAF2', axis: '#3A4558', grid: '#181F2C' };
+
+  state = this.defaults();
+
+  defaults() {
+    return {
+      topic: null, playing: true, drag: null, time: 0,
+      dirP: { x: -3, y: -2 }, dirQ: { x: 2.5, y: 1.5 },
+      normV: { x: 2.6, y: 1.7 },
+      dotA: { x: 0.976, y: 0.217 }, dotB: { x: 0.394, y: 0.919 },
+      crossA: [1, 0, 0], crossB: [0.342, 0.94, 0], crossYaw: -0.5, crossSwap: false,
+      gYaw: 30, gPitch: 20, gRoll: 0,
+      lerpA: { x: -5, y: -2.5 }, lerpB: { x: 4.5, y: 3 }, lerpT: 0.3, lerpDir: 1, lerpEase: 'linear',
+      slerpA: 0.3, slerpB: 2.5, slerpT: 0, slerpDir: 1,
+      invA: 20, invB: 80, invV: 50, invC: 10, invD: 90, invDir: 1,
+      qYaw: 35, qPitch: 50, qAngle: 0
+    };
+  }
+
+  componentDidMount() {
+    this.last = performance.now();
+    const loop = (now) => {
+      const dt = Math.min(0.05, (now - this.last) / 1000);
+      this.last = now;
+      if (this.state.playing && !this.state.drag) {
+        const u = this.advance(dt);
+        if (u) this.setState(u);
+      }
+      this.raf = requestAnimationFrame(loop);
+    };
+    this.raf = requestAnimationFrame(loop);
+  }
+
+  componentWillUnmount() { cancelAnimationFrame(this.raf); }
+
+  topicOf() { return this.state.topic || this.props.startTopic || 'dir'; }
+
+  bounce(t, d, step, lo, hi) {
+    t += d * step;
+    if (t > hi) { t = hi; d = -1; }
+    if (t < lo) { t = lo; d = 1; }
+    return [t, d];
+  }
+
+  rot(p, a) { const c = Math.cos(a), s = Math.sin(a); return { x: p.x * c - p.y * s, y: p.x * s + p.y * c }; }
+
+  advance(dt) {
+    const s = this.state, k = dt * (this.props.speed ?? 1), t = this.topicOf();
+    if (t === 'gimbal') return { gRoll: ((s.gRoll + 40 * k + 180) % 360 + 360) % 360 - 180 };
+    if (t === 'lerp') { const b = this.bounce(s.lerpT, s.lerpDir, 0.28 * k, 0, 1); return { lerpT: b[0], lerpDir: b[1] }; }
+    if (t === 'slerp') { const b = this.bounce(s.slerpT, s.slerpDir, 0.3 * k, 0, 1); return { slerpT: b[0], slerpDir: b[1] }; }
+    if (t === 'inv') {
+      const span = s.invB - s.invA;
+      if (Math.abs(span) < 1e-6) return null;
+      const b = this.bounce((s.invV - s.invA) / span, s.invDir, 0.25 * k, -0.25, 1.25);
+      let v = s.invA + span * b[0], d = b[1];
+      if (v <= 0) { v = 0; d = span > 0 ? 1 : -1; }
+      if (v >= 100) { v = 100; d = span > 0 ? -1 : 1; }
+      return { invV: v, invDir: d };
+    }
+    if (t === 'quat') return { qAngle: (s.qAngle + 45 * k) % 720 };
+    return null;
+  }
+
+  view(t) {
+    return {
+      dir: { S: 40, ox: 320, oy: 240 }, norm: { S: 80, ox: 320, oy: 240 }, dot: { S: 160, ox: 320, oy: 245 },
+      lerp: { S: 40, ox: 320, oy: 240 }, slerp: { S: 170, ox: 320, oy: 240 }
+    }[t];
+  }
+
+  startDrag(key, e) {
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (_) {}
+    if (e.preventDefault) e.preventDefault();
+    this.setState({ drag: key });
+  }
+
+  onMove = (e) => {
+    const key = this.state.drag;
+    if (!key) return;
+    const rc = e.currentTarget.getBoundingClientRect();
+    const sx = Math.max(8, Math.min(632, (e.clientX - rc.left) / rc.width * 640));
+    const sy = Math.max(8, Math.min(472, (e.clientY - rc.top) / rc.height * 480));
+    const t = this.topicOf();
+    if (t === 'inv') {
+      const raw = key === 'invC' || key === 'invD' ? (420 - sy) / 3.8 : (sx - 80) / 5.2;
+      this.setState({ [key]: Math.max(0, Math.min(100, Math.round(raw))) });
+      return;
+    }
+    if (t === 'cross') {
+      const cur = this.state[key], yaw = this.state.crossYaw, pit = 0.42, S = 130;
+      const x1 = (sx - 320) / S, up = (270 - sy) / S, y1 = (up - cur[2] * Math.cos(pit)) / Math.sin(pit);
+      const c = Math.cos(yaw), sn = Math.sin(yaw), hd = Math.atan2(-x1 * sn + y1 * c, x1 * c + y1 * sn);
+      const el = Math.asin(Math.max(-1, Math.min(1, cur[2])));
+      this.setState({ [key]: [Math.cos(el) * Math.cos(hd), Math.cos(el) * Math.sin(hd), Math.sin(el)] });
+      return;
+    }
+    const v = this.view(t);
+    if (!v) return;
+    const p = { x: (sx - v.ox) / v.S, y: (v.oy - sy) / v.S };
+    if (key === 'dotA' || key === 'dotB') { const l = Math.hypot(p.x, p.y); if (l > 1e-3) this.setState({ [key]: { x: p.x / l, y: p.y / l } }); return; }
+    if (key === 'slerpA' || key === 'slerpB') { this.setState({ [key]: Math.atan2(p.y, p.x) }); return; }
+    this.setState({ [key]: { x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10 } });
+  };
+
+  onUp = () => { if (this.state.drag) this.setState({ drag: null }); };
+
+  /* ---------- drawing helpers ---------- */
+  r1(n) { return Math.round(n * 10) / 10; }
+  f2(n) { return (Math.abs(n) < 0.005 ? 0 : n).toFixed(2); }
+  vs(p) { return '(' + this.f2(p.x) + ', ' + this.f2(p.y) + ')'; }
+  vs3(p) { return '(' + this.f2(p[0]) + ', ' + this.f2(p[1]) + ', ' + this.f2(p[2]) + ')'; }
+  toS(p, v) { return { x: v.ox + p.x * v.S, y: v.oy - p.y * v.S }; }
+  sc() { return { grid: [], polys: [], rings: [], paths: [], lines: [], arrows: [], dots: [], labels: [], handles: [] }; }
+  L(sc, a, b, stroke, sw, op, dash) { sc.lines.push({ x1: this.r1(a.x), y1: this.r1(a.y), x2: this.r1(b.x), y2: this.r1(b.y), stroke, sw: sw || 1, op: op == null ? 1 : op, dash: dash || 'none' }); }
+  Ar(sc, a, b, stroke, sw, op) {
+    sw = sw || 3; op = op == null ? 1 : op;
+    const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
+    if (len < 2) return;
+    const ux = dx / len, uy = dy / len, hs = Math.min(9 + sw * 2.2, len * 0.6), hw = hs * 0.55;
+    const bx = b.x - ux * hs, by = b.y - uy * hs, r = (n) => this.r1(n);
+    sc.arrows.push({ x1: r(a.x), y1: r(a.y), x2: r(bx + ux), y2: r(by + uy), stroke, sw, op,
+      pts: r(b.x) + ',' + r(b.y) + ' ' + r(bx - uy * hw) + ',' + r(by + ux * hw) + ' ' + r(bx + uy * hw) + ',' + r(by - ux * hw) });
+  }
+  Dot(sc, p, rad, fill, stroke, sw) { sc.dots.push({ cx: this.r1(p.x), cy: this.r1(p.y), r: rad, fill, stroke: stroke || 'none', sw: sw || 0 }); }
+  Ring(sc, c, rad, stroke, sw, dash, op) { sc.rings.push({ cx: this.r1(c.x), cy: this.r1(c.y), r: this.r1(rad), stroke, sw: sw || 1, dash: dash || 'none', op: op == null ? 1 : op }); }
+  Pa(sc, d, stroke, sw, op, dash) { sc.paths.push({ d, stroke, sw: sw || 2, op: op == null ? 1 : op, dash: dash || 'none' }); }
+  Po(sc, pts, fill, fop, stroke, sw) { sc.polys.push({ pts: pts.map((p) => this.r1(p.x) + ',' + this.r1(p.y)).join(' '), fill, fop, stroke: stroke || 'none', sw: sw || 0 }); }
+  Tx(sc, p, text, fill, size, anchor, weight) { sc.labels.push({ x: this.r1(p.x), y: this.r1(p.y), text, fill, size: size || 13, anchor: anchor || 'middle', weight: weight || 600 }); }
+  H(sc, p, key, fill) { sc.handles.push({ cx: this.r1(p.x), cy: this.r1(p.y), fill, down: (e) => this.startDrag(key, e) }); }
+  arc(c, rad, a0, a1) {
+    const sx = c.x + rad * Math.cos(a0), sy = c.y - rad * Math.sin(a0), ex = c.x + rad * Math.cos(a1), ey = c.y - rad * Math.sin(a1);
+    const d = a1 - a0, large = Math.abs(d) > Math.PI ? 1 : 0, sweep = d > 0 ? 0 : 1, r = (n) => this.r1(n);
+    return 'M' + r(sx) + ' ' + r(sy) + ' A' + r(rad) + ' ' + r(rad) + ' 0 ' + large + ' ' + sweep + ' ' + r(ex) + ' ' + r(ey);
+  }
+  grid2D(sc, v) {
+    const step = v.S >= 120 ? 0.25 : (v.S >= 60 ? 0.5 : 1), lab = v.S >= 60 ? 1 : 2, show = this.props.showGrid ?? true;
+    const isLab = (w) => w !== 0 && Math.abs(w / lab - Math.round(w / lab)) < 1e-6;
+    for (let i = Math.ceil(-v.ox / v.S / step); i <= Math.floor((640 - v.ox) / v.S / step); i++) {
+      const w = Math.round(i * step * 100) / 100, x = v.ox + w * v.S;
+      if (i === 0 || show) sc.grid.push({ x1: this.r1(x), y1: 0, x2: this.r1(x), y2: 480, stroke: i === 0 ? this.C.axis : this.C.grid, sw: i === 0 ? 1.5 : 1 });
+      if (isLab(w)) this.Tx(sc, { x, y: v.oy + 16 }, String(w), '#758199', 10, 'middle', 400);
+    }
+    for (let j = Math.ceil((v.oy - 480) / v.S / step); j <= Math.floor(v.oy / v.S / step); j++) {
+      const w = Math.round(j * step * 100) / 100, y = v.oy - w * v.S;
+      if (j === 0 || show) sc.grid.push({ x1: 0, y1: this.r1(y), x2: 640, y2: this.r1(y), stroke: j === 0 ? this.C.axis : this.C.grid, sw: j === 0 ? 1.5 : 1 });
+      if (isLab(w)) this.Tx(sc, { x: v.ox - 8, y: y + 4 }, String(w), '#758199', 10, 'end', 400);
+    }
+  }
+  proj(yaw, pit, S, ox, oy) {
+    const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pit), sp = Math.sin(pit);
+    return (p) => {
+      const x1 = p[0] * cy - p[1] * sy, y1 = p[0] * sy + p[1] * cy;
+      return { x: ox + x1 * S, y: oy - (p[2] * cp + y1 * sp) * S, d: y1 * cp - p[2] * sp };
+    };
+  }
+  add3(a, b) { return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]; }
+  mul3(a, k) { return [a[0] * k, a[1] * k, a[2] * k]; }
+  cross3(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
+  dot3(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+  norm3(a) { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; }
+  deg(rad) { return (rad * 180 / Math.PI).toFixed(1) + '°'; }
+
+  /* ---------- scenes ---------- */
+  sceneDir(sc, r) {
+    const s = this.state, v = this.view('dir'), C = this.C, P = s.dirP, Q = s.dirQ, d = { x: Q.x - P.x, y: Q.y - P.y };
+    const sP = this.toS(P, v), sQ = this.toS(Q, v), corner = this.toS({ x: Q.x, y: P.y }, v), O = this.toS({ x: 0, y: 0 }, v), sD = this.toS(d, v);
+    const len = Math.hypot(d.x, d.y), ang = Math.atan2(d.y, d.x), ux = len ? d.x / len : 1, uy = len ? d.y / len : 0;
+    this.grid2D(sc, v);
+    this.L(sc, sP, corner, C.A, 2, 0.6, '5 6');
+    this.L(sc, corner, sQ, C.A, 2, 0.6, '5 6');
+    this.L(sc, sP, { x: sP.x + 70, y: sP.y }, C.faint, 1.5, 1, '3 5');
+    if (Math.abs(d.x) > 0.3) this.Tx(sc, { x: (sP.x + corner.x) / 2, y: sP.y + (d.y >= 0 ? 18 : -10) }, 'dx ' + this.f2(d.x), C.A, 11, 'middle', 500);
+    if (Math.abs(d.y) > 0.3) this.Tx(sc, { x: corner.x + (d.x >= 0 ? 8 : -8), y: (corner.y + sQ.y) / 2 + 4 }, 'dy ' + this.f2(d.y), C.A, 11, d.x >= 0 ? 'start' : 'end', 500);
+    if (len > 0.1) {
+      this.Pa(sc, this.arc(sP, 34, 0, ang), C.R, 2.5, 1);
+      this.Tx(sc, { x: sP.x + 50 * Math.cos(ang / 2), y: sP.y - 50 * Math.sin(ang / 2) + 4 }, 'θ', C.R, 14, 'middle', 600);
+    }
+    this.L(sc, sP, sQ, C.A, 2.5, 0.85, '7 6');
+    if (len > 0.3) this.Tx(sc, { x: (sP.x + sQ.x) / 2 - uy * 16, y: (sP.y + sQ.y) / 2 - ux * 16 + 4 }, 'd  |d| = ' + this.f2(len), C.A, 11, 'middle', 500);
+    this.Ring(sc, sP, v.S, C.U, 1.5, '3 4', 0.6);
+    if (len > 0.05) {
+      const tip = this.toS({ x: P.x + ux, y: P.y + uy }, v);
+      this.Ar(sc, sP, tip, C.U, 5);
+      this.Tx(sc, { x: tip.x + uy * 16, y: tip.y + ux * 16 + 4 }, 'dir', C.U, 13);
+    }
+    this.Tx(sc, { x: sP.x - ux * 34, y: sP.y + uy * 30 + 4 }, 'Player', '#C9D1E0', 14);
+    this.Tx(sc, { x: sQ.x + ux * 36, y: sQ.y - uy * 30 + 4 }, 'Enemy', C.A, 14);
+    this.H(sc, sP, 'dirP', '#C9D1E0');
+    this.H(sc, sQ, 'dirQ', C.A);
+    const names = ['east', 'north-east', 'north', 'north-west', 'west', 'south-west', 'south', 'south-east'];
+    const dg = ((ang * 180 / Math.PI) % 360 + 360) % 360;
+    Object.assign(r, { P: this.vs(P), Q: this.vs(Q), d: this.vs(d), len: this.f2(len), dir: len > 0.05 ? this.vs({ x: ux, y: uy }) : 'undefined', ang: this.deg(ang), compass: len > 0.05 ? names[Math.round(dg / 45) % 8] : '—',
+      hint: 'Drag the player and the enemy', title: 'dir = (enemy − player) / |enemy − player|' });
+  }
+
+  sceneNorm(sc, r) {
+    const s = this.state, v = this.view('norm'), C = this.C, V = s.normV, O = this.toS({ x: 0, y: 0 }, v);
+    const len = Math.hypot(V.x, V.y), zero = len < 0.05, n = zero ? { x: 0, y: 0 } : { x: V.x / len, y: V.y / len };
+    this.grid2D(sc, v);
+    this.Ring(sc, O, v.S, C.U, 2, '6 6', 0.7);
+    this.Tx(sc, { x: O.x + v.S * 0.72, y: O.y + v.S * 0.72 + 18 }, 'unit circle', C.U, 11, 'start', 500);
+    const sV = this.toS(V, v);
+    if (!zero) {
+      this.L(sc, O, this.toS({ x: n.x * 12, y: n.y * 12 }, v), C.faint, 1.5, 0.8, '2 6');
+      this.Ar(sc, O, sV, C.A, 3);
+      this.Ar(sc, O, this.toS(n, v), C.U, 5);
+      const sN = this.toS(n, v);
+      this.Tx(sc, { x: sN.x + n.y * 16, y: sN.y + n.x * 16 + 4 }, 'n', C.U, 15);
+      this.Tx(sc, { x: sV.x + n.x * 24, y: sV.y - n.y * 24 + 4 }, 'v', C.A, 15);
+    }
+    this.H(sc, sV, 'normV', C.A);
+    Object.assign(r, { v: this.vs(V), len: this.f2(len), n: zero ? 'undefined' : this.vs(n), nlen: zero ? '—' : '1.00', zero,
+      hint: 'Drag the tip of v anywhere', title: 'n = v / |v|' });
+  }
+
+  sceneDot(sc, r) {
+    const s = this.state, v = this.view('dot'), C = this.C, nz = (p) => { const l = Math.hypot(p.x, p.y) || 1; return { x: p.x / l, y: p.y / l }; }, A = nz(s.dotA), B = nz(s.dotB), O = this.toS({ x: 0, y: 0 }, v);
+    const dot = A.x * B.x + A.y * B.y, la = Math.hypot(A.x, A.y), lb = Math.hypot(B.x, B.y);
+    const cos = la && lb ? Math.max(-1, Math.min(1, dot / (la * lb))) : 0;
+    const k = la ? dot / (la * la) : 0, Pj = { x: A.x * k, y: A.y * k }, u = la ? { x: A.x / la, y: A.y / la } : { x: 1, y: 0 };
+    this.grid2D(sc, v);
+    this.Ring(sc, O, v.S, '#3A4558', 1.5, '6 6', 0.9);
+    this.L(sc, this.toS({ x: -u.x * 20, y: -u.y * 20 }, v), this.toS({ x: u.x * 20, y: u.y * 20 }, v), C.A, 1.5, 0.25, '4 6');
+    const sB = this.toS(B, v), sP = this.toS(Pj, v), sA = this.toS(A, v);
+    this.L(sc, sB, sP, C.muted, 1.5, 0.9, '4 5');
+    const wv = { x: B.x - Pj.x, y: B.y - Pj.y }, wl = Math.hypot(wv.x, wv.y);
+    if (wl > 0.1 && Math.hypot(Pj.x, Pj.y) > 0.1) {
+      const w = { x: wv.x / wl * 0.07, y: wv.y / wl * 0.07 }, g = k >= 0 ? -1 : 1, e = { x: u.x * 0.07 * g, y: u.y * 0.07 * g };
+      sc.paths.push({ d: 'M' + this.r1(this.toS({ x: Pj.x + w.x, y: Pj.y + w.y }, v).x) + ' ' + this.r1(this.toS({ x: Pj.x + w.x, y: Pj.y + w.y }, v).y) + ' L' + this.r1(this.toS({ x: Pj.x + w.x + e.x, y: Pj.y + w.y + e.y }, v).x) + ' ' + this.r1(this.toS({ x: Pj.x + w.x + e.x, y: Pj.y + w.y + e.y }, v).y) + ' L' + this.r1(this.toS({ x: Pj.x + e.x, y: Pj.y + e.y }, v).x) + ' ' + this.r1(this.toS({ x: Pj.x + e.x, y: Pj.y + e.y }, v).y), stroke: C.muted, sw: 1.5, op: 0.9, dash: 'none' });
+    }
+    const a0 = Math.atan2(A.y, A.x), sg = Math.atan2(A.x * B.y - A.y * B.x, dot);
+    if (la > 0.2 && lb > 0.2) {
+      this.Pa(sc, this.arc(O, 38, a0, a0 + sg), C.text, 2, 0.8);
+      this.Tx(sc, { x: O.x + 56 * Math.cos(a0 + sg / 2), y: O.y - 56 * Math.sin(a0 + sg / 2) + 4 }, 'θ', C.text, 13);
+    }
+    const resCol = Math.abs(cos) < 0.08 ? '#C9D1E0' : (cos > 0 ? C.U : C.R);
+    this.Ar(sc, O, sA, C.A, 3.5);
+    this.Ar(sc, O, sB, C.B, 3.5);
+    this.Tx(sc, { x: sA.x + u.x * 22, y: sA.y - u.y * 22 + 4 }, 'A', C.A, 15);
+    const ub = lb ? { x: B.x / lb, y: B.y / lb } : { x: 0, y: 1 };
+    this.Tx(sc, { x: sB.x + ub.x * 22, y: sB.y - ub.y * 22 + 4 }, 'B', C.B, 15);
+    this.H(sc, sA, 'dotA', C.A);
+    this.H(sc, sB, 'dotB', C.B);
+    const left = cos >= 0 ? 50 : 50 + cos * 50, w = Math.abs(cos) * 50;
+    const verdict = Math.abs(cos) < 0.08 ? 'Perpendicular — dot ≈ 0' : (cos > 0 ? 'Pointing the same way — dot > 0' : 'Pointing away — dot < 0');
+    const barColor = Math.abs(cos) < 0.08 ? '#C9D1E0' : (cos > 0 ? C.U : C.R);
+    const oX = 320 + Math.max(-1, Math.min(1, dot)) * 280, sgn = dot >= 0 ? 1 : -1, oB = oX - sgn * 14;
+    Object.assign(r, { hasOut: Math.abs(dot) > 0.03, outX2: this.r1(oX), outPts: this.r1(oX) + ',40 ' + this.r1(oB) + ',30 ' + this.r1(oB) + ',50', outX: this.r1(Math.max(90, Math.min(550, oX))) });
+    Object.assign(r, { expr: this.f2(A.x) + '·' + this.f2(B.x) + ' + ' + this.f2(A.y) + '·' + this.f2(B.y), dot: this.f2(dot), lens: this.f2(la) + ' · ' + this.f2(lb) + ' = ' + this.f2(la * lb),
+      theta: this.deg(Math.acos(cos)), cos: this.f2(cos), barLeft: left.toFixed(1), barW: Math.max(0.8, w).toFixed(1), barColor, verdict,
+      hint: 'Drag A and B around the unit circle', title: 'A · B = |A| |B| cos θ' });
+  }
+
+  sceneCross(sc, r) {
+    const s = this.state, C = this.C, P = this.proj(s.crossYaw, 0.42, 130, 320, 270);
+    const A = this.norm3(s.crossA), B = this.norm3(s.crossB), la = Math.hypot(A[0], A[1], A[2]), lb = Math.hypot(B[0], B[1], B[2]);
+    let X = this.cross3(A, B);
+    if (s.crossSwap) X = this.mul3(X, -1);
+    const O = P([0, 0, 0]);
+    for (let j = -3; j <= 3; j++) {
+      const i = j * 0.5;
+      this.L(sc, P([i, -1.5, 0]), P([i, 1.5, 0]), j === 0 ? C.axis : '#1E2533', 1, 1);
+      this.L(sc, P([-1.5, i, 0]), P([1.5, i, 0]), j === 0 ? C.axis : '#1E2533', 1, 1);
+    }
+    let fl = '';
+    for (let i = 0; i <= 64; i++) { const p = P([Math.cos(i / 32 * Math.PI), Math.sin(i / 32 * Math.PI), 0]); fl += (i ? ' L' : 'M') + this.r1(p.x) + ' ' + this.r1(p.y); }
+    this.Pa(sc, fl, '#3A4558', 1.5, 0.9, '6 6');
+    this.Ar(sc, O, P([1.7, 0, 0]), C.faint, 1.5);
+    this.Ar(sc, O, P([0, 1.7, 0]), C.faint, 1.5);
+    this.Ar(sc, O, P([0, 0, 1.45]), C.faint, 1.5);
+    this.Tx(sc, P([1.85, 0, 0]), 'x', '#8C97AB', 12); this.Tx(sc, P([0, 1.85, 0]), 'y', '#8C97AB', 12); this.Tx(sc, P([0, 0, 1.58]), 'z', '#8C97AB', 12);
+    this.Po(sc, [O, P(A), P(this.add3(A, B)), P(B)], C.R, 0.16, C.R, 1.5);
+    [A, B].forEach((V) => {
+      if (Math.abs(V[2]) > 0.05) { this.L(sc, P(V), P([V[0], V[1], 0]), C.muted, 1.5, 0.8, '3 5'); this.Dot(sc, P([V[0], V[1], 0]), 3, C.muted); }
+    });
+    this.Ar(sc, O, P(A), C.A, 3.5);
+    this.Ar(sc, O, P(B), C.B, 3.5);
+    this.Ar(sc, O, P(X), C.R, 4.5);
+    const lx = Math.hypot(X[0], X[1], X[2]);
+    this.Tx(sc, P(this.mul3(A, 1.22)), 'A', C.A, 15);
+    this.Tx(sc, P(this.mul3(B, 1.22)), 'B', C.B, 15);
+    const name = s.crossSwap ? 'B × A' : 'A × B';
+    if (lx > 0.05) this.Tx(sc, P(this.add3(X, this.mul3(this.norm3(X), 0.18))), name, C.R, 14);
+    this.H(sc, P(A), 'crossA', C.A);
+    this.H(sc, P(B), 'crossB', C.B);
+    const ang = la > 1e-6 && lb > 1e-6 ? Math.acos(Math.max(-1, Math.min(1, this.dot3(A, B) / (la * lb)))) : 0;
+    const yd = Math.round(s.crossYaw * 180 / Math.PI);
+    Object.assign(r, { A: this.vs3(A), B: this.vs3(B), C: this.vs3(X), name, swapTo: s.crossSwap ? 'A × B' : 'B × A', area: this.f2(lx), angle: this.deg(ang),
+      az: Math.round(Math.asin(A[2]) * 180 / Math.PI) + '°', azVal: Math.round(Math.asin(A[2]) * 180 / Math.PI), bz: Math.round(Math.asin(B[2]) * 180 / Math.PI) + '°', bzVal: Math.round(Math.asin(B[2]) * 180 / Math.PI), yawIn: yd + '°', yawVal: yd,
+      hint: 'Drag the tips of A and B · sliders set elevation', title: name + ' ⟂ A and B' });
+  }
+
+  sceneLerp(sc, r) {
+    const s = this.state, v = this.view('lerp'), C = this.C, A = s.lerpA, B = s.lerpB, t = s.lerpT;
+    const ease = (x) => s.lerpEase === 'smooth' ? x * x * (3 - 2 * x) : x, te = ease(t);
+    const at = (x) => ({ x: A.x + (B.x - A.x) * x, y: A.y + (B.y - A.y) * x }), Pt = at(te);
+    const sA = this.toS(A, v), sB = this.toS(B, v), sP = this.toS(Pt, v);
+    this.grid2D(sc, v);
+    this.L(sc, this.toS(at(-0.3), v), sA, C.faint, 1.5, 1, '3 6');
+    this.L(sc, sB, this.toS(at(1.3), v), C.faint, 1.5, 1, '3 6');
+    this.L(sc, sA, sB, C.muted, 2, 0.7);
+    this.L(sc, sA, sP, C.R, 5, 0.9);
+    for (let i = 0; i <= 10; i++) this.Dot(sc, this.toS(at(ease(i / 10)), v), i % 5 === 0 ? 4 : 2.8, '#C9D1E0');
+    const dx = B.x - A.x, dy = B.y - A.y, l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l;
+    this.Dot(sc, sP, 9, C.R, '#F2F4F8', 2.5);
+    this.Tx(sc, { x: sP.x + nx * 26, y: sP.y - ny * 26 + 4 }, 'P  t=' + t.toFixed(2), C.R, 13);
+    this.Tx(sc, { x: sA.x - nx * 24, y: sA.y + ny * 24 + 4 }, 'A  t=0', C.A, 13);
+    this.Tx(sc, { x: sB.x - nx * 24, y: sB.y + ny * 24 + 4 }, 'B  t=1', C.B, 13);
+    this.H(sc, sA, 'lerpA', C.A);
+    this.H(sc, sB, 'lerpB', C.B);
+    const c0 = [245, 184, 61], c1 = [90, 184, 245], hex = (n) => Math.round(n).toString(16).padStart(2, '0');
+    const col = '#' + [0, 1, 2].map((i) => hex(c0[i] + (c1[i] - c0[i]) * te)).join('').toUpperCase();
+    const sm = s.lerpEase === 'smooth';
+    Object.assign(r, { t: t.toFixed(2), tVal: t, te: te.toFixed(2), P: this.vs(Pt), AB: this.vs(A) + ' → ' + this.vs(B), num: (100 * te).toFixed(1), pct: (te * 100).toFixed(1), color: col,
+      linPressed: !sm, smPressed: sm, linBg: sm ? 'transparent' : '#E6EAF2', linFg: sm ? '#E6EAF2' : '#0E1117', linBd: sm ? '#2E3748' : '#E6EAF2',
+      smBg: sm ? '#E6EAF2' : 'transparent', smFg: sm ? '#0E1117' : '#E6EAF2', smBd: sm ? '#E6EAF2' : '#2E3748',
+      hint: 'Drag A and B · scrub t', title: 'P = A + (B − A) · t' });
+  }
+
+  sceneSlerp(sc, r) {
+    const s = this.state, v = this.view('slerp'), C = this.C, a = s.slerpA, b = s.slerpB, t = s.slerpT;
+    let d = b - a; d = ((d + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+    const om = Math.abs(d), O = this.toS({ x: 0, y: 0 }, v);
+    const A = { x: Math.cos(a), y: Math.sin(a) }, B = { x: Math.cos(b), y: Math.sin(b) };
+    const lp = (x) => ({ x: A.x + (B.x - A.x) * x, y: A.y + (B.y - A.y) * x });
+    const pol = (ang, rad) => ({ x: Math.cos(ang) * rad, y: Math.sin(ang) * rad });
+    this.grid2D(sc, v);
+    this.Ring(sc, O, v.S, '#3A4558', 1.5);
+    this.Pa(sc, this.arc(O, v.S, a, a + d), C.R, 4, 0.45);
+    this.L(sc, this.toS(A, v), this.toS(B, v), C.muted, 1.5, 0.9, '4 5');
+    for (let i = 1; i < 10; i++) {
+      this.Dot(sc, this.toS(pol(a + d * i / 10, 0.92), v), 3.2, C.R);
+      this.Dot(sc, this.toS(lp(i / 10), v), 2.4, C.muted);
+    }
+    if (om > 0.05) {
+      this.Pa(sc, this.arc(O, 34, a, a + d), C.text, 1.5, 0.7);
+      this.Tx(sc, this.toS(pol(a + d / 2, 52 / v.S), v), 'Ω', C.text, 13);
+    }
+    const Lp = lp(t), Sp = pol(a + d * t, 1);
+    this.Ar(sc, O, this.toS(A, v), C.A, 3);
+    this.Ar(sc, O, this.toS(B, v), C.B, 3);
+    this.Ar(sc, O, this.toS(Lp, v), C.muted, 2, 0.9);
+    this.Ar(sc, O, this.toS(Sp, v), C.R, 4.5);
+    this.Dot(sc, this.toS(Lp, v), 5, C.muted, '#0B0F16', 2);
+    this.Tx(sc, this.toS(pol(a, 1.16), v), 'A', C.A, 15);
+    this.Tx(sc, this.toS(pol(b, 1.16), v), 'B', C.B, 15);
+    this.H(sc, this.toS(A, v), 'slerpA', C.A);
+    this.H(sc, this.toS(B, v), 'slerpB', C.B);
+    Object.assign(r, { t: t.toFixed(2), tVal: t, omega: this.deg(om), sAng: this.deg(om * t), lLen: this.f2(Math.hypot(Lp.x, Lp.y)),
+      hint: 'Drag A and B around the circle', title: 'slerp (arc) vs lerp (chord)' });
+  }
+
+  sceneInv(sc, r) {
+    const s = this.state, C = this.C, a = s.invA, b = s.invB, val = s.invV, c = s.invC, dd = s.invD;
+    const X = (n) => 80 + n * 5.2, Y = (n) => 420 - n * 3.8;
+    const span = b - a, ok = Math.abs(span) > 1e-6, t = ok ? (val - a) / span : 0, out = c + (dd - c) * t;
+    const lo = Math.min(a, b), hi = Math.max(a, b), clo = Math.min(c, dd), chi = Math.max(c, dd);
+    this.Po(sc, [{ x: X(lo), y: 40 }, { x: X(hi), y: 40 }, { x: X(hi), y: 420 }, { x: X(lo), y: 420 }], C.A, 0.07);
+    this.Po(sc, [{ x: 80, y: Y(chi) }, { x: 600, y: Y(chi) }, { x: 600, y: Y(clo) }, { x: 80, y: Y(clo) }], C.B, 0.07);
+    const show = this.props.showGrid ?? true;
+    for (let n = 0; n <= 100; n += 10) {
+      if (n === 0 || show) {
+        sc.grid.push({ x1: X(n), y1: 40, x2: X(n), y2: 420, stroke: n === 0 ? C.axis : C.grid, sw: n === 0 ? 1.5 : 1 });
+        sc.grid.push({ x1: 80, y1: Y(n), x2: 600, y2: Y(n), stroke: n === 0 ? C.axis : C.grid, sw: n === 0 ? 1.5 : 1 });
+      }
+      this.Tx(sc, { x: X(n), y: 442 }, String(n), '#758199', 10, 'middle', 400);
+      this.Tx(sc, { x: 70, y: Y(n) + 4 }, String(n), '#758199', 10, 'end', 400);
+    }
+    this.Tx(sc, { x: 600, y: 468 }, 'input v →', '#A3ADBF', 11, 'end', 500);
+    this.Tx(sc, { x: 80, y: 26 }, '↑ output', '#A3ADBF', 11, 'start', 500);
+    if (ok) {
+      const f = (n) => c + (dd - c) * (n - a) / span;
+      const seg = this.clipBox({ x: X(0), y: Y(f(0)) }, { x: X(100), y: Y(f(100)) }, 80, 40, 600, 420);
+      if (seg) this.L(sc, seg[0], seg[1], C.U, 2, 0.55, '6 6');
+      const p0 = { x: X(a), y: Y(c) }, p1 = { x: X(b), y: Y(dd) };
+      this.L(sc, { x: X(a), y: 420 }, p0, C.A, 1.5, 0.6, '2 5');
+      this.L(sc, { x: X(b), y: 420 }, p1, C.A, 1.5, 0.6, '2 5');
+      this.L(sc, { x: 80, y: Y(c) }, p0, C.B, 1.5, 0.6, '2 5');
+      this.L(sc, { x: 80, y: Y(dd) }, p1, C.B, 1.5, 0.6, '2 5');
+      this.L(sc, p0, p1, C.U, 5, 0.95);
+      [0.25, 0.5, 0.75].forEach((k) => this.Dot(sc, { x: p0.x + (p1.x - p0.x) * k, y: p0.y + (p1.y - p0.y) * k }, 3.5, '#0B0F16', C.U, 2));
+      this.Dot(sc, p0, 5.5, C.U);
+      this.Dot(sc, p1, 5.5, C.U);
+      this.Tx(sc, { x: p0.x - 10, y: p0.y - 12 }, 't = 0', C.U, 11, 'end', 500);
+      this.Tx(sc, { x: p1.x + 10, y: p1.y - 12 }, 't = 1', C.U, 11, 'start', 500);
+      const pt = { x: X(val), y: Math.max(40, Math.min(420, Y(out))) };
+      this.L(sc, { x: X(val), y: 420 }, pt, C.R, 2, 0.95, '5 5');
+      this.L(sc, pt, { x: 80, y: pt.y }, C.R, 2, 0.95, '5 5');
+      this.Dot(sc, pt, 8, C.R, '#F2F4F8', 2.5);
+      this.Dot(sc, { x: 80, y: pt.y }, 6, C.R, '#0B0F16', 2);
+      this.Tx(sc, { x: pt.x + 14, y: pt.y - 12 }, 't = ' + t.toFixed(2), C.R, 13, 'start');
+      this.Tx(sc, { x: 92, y: pt.y - 10 }, 'out ' + out.toFixed(1), C.R, 12, 'start');
+    }
+    this.Tx(sc, { x: X(a), y: 402 }, 'a', C.A, 12);
+    this.Tx(sc, { x: X(b), y: 402 }, 'b', C.A, 12);
+    this.Tx(sc, { x: X(val), y: 402 }, 'v', C.R, 12);
+    this.Tx(sc, { x: 104, y: Y(c) + 18 }, 'c', C.B, 12, 'start');
+    this.Tx(sc, { x: 104, y: Y(dd) + 18 }, 'd', C.B, 12, 'start');
+    this.H(sc, { x: X(a), y: 420 }, 'invA', C.A);
+    this.H(sc, { x: X(b), y: 420 }, 'invB', C.A);
+    this.H(sc, { x: 80, y: Y(c) }, 'invC', C.B);
+    this.H(sc, { x: 80, y: Y(dd) }, 'invD', C.B);
+    this.H(sc, { x: X(val), y: 420 }, 'invV', C.R);
+    const inside = t >= 0 && t <= 1;
+    const vv = Math.round(val);
+    Object.assign(r, { v: String(vv), vVal: vv, ab: '[' + a + ', ' + b + ']', cd: '[' + c + ', ' + dd + ']',
+      expr: '(' + vv + ' − ' + a + ') / (' + b + ' − ' + a + ')', t: ok ? t.toFixed(3) : 'undefined', out: ok ? out.toFixed(2) : '—',
+      note: !ok ? 'a equals b, so the range has zero width and t is undefined (division by zero).' : (inside ? 'v is inside [a, b], so t lands between 0 and 1.' : 'v is outside [a, b], so t is ' + (t < 0 ? 'below 0' : 'above 1') + ' and the remap extrapolates. Clamp t to [0, 1] if you need to stay in range.'),
+      noteBg: ok && inside ? '#14251F' : '#2A1A22', noteFg: ok && inside ? '#A7F0CF' : '#F7B6D3',
+      hint: 'Drag a, b, v on the x-axis · c, d on the y-axis', title: 'remap = lerp(c, d, invLerp(a, b, v))' });
+  }
+
+  clipBox(p, q, x0, y0, x1, y1) {
+    let t0 = 0, t1 = 1;
+    const dx = q.x - p.x, dy = q.y - p.y;
+    const ch = (pp, qq) => {
+      if (pp === 0) return qq >= 0;
+      const rr = qq / pp;
+      if (pp < 0) { if (rr > t1) return false; if (rr > t0) t0 = rr; } else { if (rr < t0) return false; if (rr < t1) t1 = rr; }
+      return true;
+    };
+    if (ch(-dx, p.x - x0) && ch(dx, x1 - p.x) && ch(-dy, p.y - y0) && ch(dy, y1 - p.y)) return [{ x: p.x + t0 * dx, y: p.y + t0 * dy }, { x: p.x + t1 * dx, y: p.y + t1 * dy }];
+    return null;
+  }
+
+  sceneGimbal(sc, r) {
+    const s = this.state, C = this.C, P = this.proj(0.6, 0.32, 74, 320, 245), D = Math.PI / 180;
+    const ya = s.gYaw * D, pi = s.gPitch * D, ro = s.gRoll * D;
+    const Rz = (a, v) => [v[0] * Math.cos(a) - v[1] * Math.sin(a), v[0] * Math.sin(a) + v[1] * Math.cos(a), v[2]];
+    const Ry = (b, v) => [v[0] * Math.cos(b) - v[2] * Math.sin(b), v[1], v[0] * Math.sin(b) + v[2] * Math.cos(b)];
+    const Rx = (c, v) => [v[0], v[1] * Math.cos(c) - v[2] * Math.sin(c), v[1] * Math.sin(c) + v[2] * Math.cos(c)];
+    const full = (v) => Rz(ya, Ry(pi, Rx(ro, v)));
+    const axY = [0, 0, 1], axP = Rz(ya, [0, 1, 0]), axR = full([1, 0, 0]);
+    const locked = Math.abs(Math.cos(pi)) < 0.035, align = Math.abs(this.dot3(axY, axR));
+    this.Ar(sc, P([0, 0, 0]), P([3.2, 0, 0]), C.faint, 1.5);
+    this.Ar(sc, P([0, 0, 0]), P([0, 3.2, 0]), C.faint, 1.5);
+    this.Tx(sc, P([3.5, 0, 0]), 'x', '#8C97AB', 12);
+    this.Tx(sc, P([0, 3.5, 0]), 'y', '#8C97AB', 12);
+    const h = [1.25, 0.55, 0.14], V = [];
+    for (let i = 0; i < 8; i++) V.push(full([i & 1 ? h[0] : -h[0], i & 2 ? h[1] : -h[1], i & 4 ? h[2] : -h[2]]));
+    const faces = [
+      { n: [1, 0, 0], v: [1, 3, 7, 5], c: [240, 111, 176] }, { n: [-1, 0, 0], v: [0, 4, 6, 2], c: [96, 108, 132] },
+      { n: [0, 1, 0], v: [2, 6, 7, 3], c: [110, 124, 150] }, { n: [0, -1, 0], v: [0, 1, 5, 4], c: [110, 124, 150] },
+      { n: [0, 0, 1], v: [4, 5, 7, 6], c: [200, 208, 222] }, { n: [0, 0, -1], v: [0, 2, 3, 1], c: [70, 80, 100] }
+    ];
+    const Ld = this.norm3([-0.3, -0.7, 0.65]);
+    faces.map((f) => {
+      const n = full(f.n), pts = f.v.map((i) => P(V[i]));
+      const k = Math.min(1.08, 0.4 + 0.72 * Math.max(0, this.dot3(n, Ld)));
+      return { depth: P(n).d, pts, avg: pts.reduce((m, p) => m + p.d, 0) / 4, fill: 'rgb(' + f.c.map((x) => Math.min(255, Math.round(x * k))).join(',') + ')' };
+    }).filter((f) => f.depth < 0).sort((p, q) => q.avg - p.avg).forEach((f) => this.Po(sc, f.pts, f.fill, 1, '#0B0F16', 1.5));
+    this.Ar(sc, P(full([1.25, 0, 0])), P(full([2.0, 0, 0])), '#E6EAF2', 3);
+    const rings = [[axY, 2.35, C.A, 'yaw', -10], [axP, 2.05, C.B, 'pitch', -10], [axR, 1.75, C.R, 'roll', 20]];
+    rings.forEach(([ax, rad, col, name, off]) => {
+      const e1 = this.norm3(this.cross3(ax, Math.abs(ax[2]) > 0.9 ? [1, 0, 0] : [0, 0, 1])), e2 = this.cross3(ax, e1);
+      let d = '';
+      for (let i = 0; i <= 72; i++) {
+        const ph = i / 72 * Math.PI * 2, p = P(this.add3(this.mul3(e1, Math.cos(ph) * rad), this.mul3(e2, Math.sin(ph) * rad)));
+        d += (i ? ' L' : 'M') + this.r1(p.x) + ' ' + this.r1(p.y);
+      }
+      this.L(sc, P(this.mul3(ax, -(rad + 0.3))), P(this.mul3(ax, rad + 0.3)), col, 1.5, 0.6, '5 5');
+      this.Pa(sc, d, col, locked && name !== 'pitch' ? 6 : 4, 0.85);
+      const lp = P(this.mul3(e1, rad));
+      this.Tx(sc, { x: lp.x, y: lp.y + off }, name, col, 13);
+    });
+    if (locked) this.Tx(sc, { x: 320, y: 458 }, 'GIMBAL LOCK — yaw and roll share one axis', C.R, 14);
+    Object.assign(r, { yaw: s.gYaw.toFixed(0) + '°', yawVal: Math.round(s.gYaw), pitch: s.gPitch.toFixed(0) + '°', pitchVal: Math.round(s.gPitch), roll: s.gRoll.toFixed(0) + '°', rollVal: Math.round(s.gRoll),
+      align: align.toFixed(3), alignPct: (align * 100).toFixed(1), alignColor: locked ? C.R : C.B, dof: locked ? '2 (one lost)' : '3',
+      lockBtn: locked ? 'Unlock: pitch back to 20°' : 'Lock it: pitch to 90°',
+      note: locked ? 'Gimbal lock. The roll axis now points the same way as the yaw axis. Try the yaw and roll sliders: they turn the object the same way, and nothing tilts it sideways.' : 'Three independent axes. Drag pitch toward ±90° and watch the pink roll ring fold onto the amber yaw ring.',
+      noteBg: locked ? '#2A1A22' : '#1A2030', noteFg: locked ? '#F7B6D3' : '#C9D1E0',
+      hint: 'Sliders set yaw, pitch, roll · roll spins while playing', title: 'R = Rz(yaw) · Ry(pitch) · Rx(roll)' });
+  }
+
+  sceneQuat(sc, r) {
+    const s = this.state, C = this.C, P = this.proj(0.65, 0.38, 72, 320, 245);
+    const ay = s.qYaw * Math.PI / 180, ap = s.qPitch * Math.PI / 180, th = s.qAngle * Math.PI / 180;
+    const u = [Math.cos(ap) * Math.cos(ay), Math.cos(ap) * Math.sin(ay), Math.sin(ap)];
+    const w = Math.cos(th / 2), sn = Math.sin(th / 2), qv = this.mul3(u, sn);
+    const rotate = (p) => { const t2 = this.mul3(this.cross3(qv, p), 2); return this.add3(this.add3(p, this.mul3(t2, w)), this.cross3(qv, t2)); };
+    const e1 = this.norm3(this.cross3(u, Math.abs(u[2]) > 0.9 ? [1, 0, 0] : [0, 0, 1])), e2 = this.cross3(u, e1);
+    const ringPt = (phi, rad) => this.add3(this.mul3(e1, Math.cos(phi) * rad), this.mul3(e2, Math.sin(phi) * rad));
+    let ring = '';
+    for (let i = 0; i <= 64; i++) { const p = P(ringPt(i / 64 * Math.PI * 2, 1.95)); ring += (i ? ' L' : 'M') + this.r1(p.x) + ' ' + this.r1(p.y); }
+    this.Pa(sc, ring, C.A, 1.5, 0.35, '4 5');
+    const sweep = th % (Math.PI * 2);
+    if (sweep > 0.02) {
+      let arcD = '', n = Math.max(2, Math.ceil(sweep / (Math.PI * 2) * 64));
+      for (let i = 0; i <= n; i++) { const p = P(ringPt(i / n * sweep, 1.95)); arcD += (i ? ' L' : 'M') + this.r1(p.x) + ' ' + this.r1(p.y); }
+      this.Pa(sc, arcD, C.R, 3.5, 0.95);
+      this.Dot(sc, P(ringPt(sweep, 1.95)), 5, C.R, '#0B0F16', 2);
+    }
+    this.L(sc, P(this.mul3(u, -2.7)), P(this.mul3(u, 2.4)), C.A, 2, 0.75, '6 5');
+    const V = [];
+    for (let i = 0; i < 8; i++) V.push(rotate([i & 1 ? 1 : -1, i & 2 ? 1 : -1, i & 4 ? 1 : -1]));
+    const faces = [
+      { n: [1, 0, 0], v: [1, 3, 7, 5], c: [240, 111, 176] }, { n: [-1, 0, 0], v: [0, 4, 6, 2], c: [96, 108, 132] },
+      { n: [0, 1, 0], v: [2, 6, 7, 3], c: [90, 184, 245] }, { n: [0, -1, 0], v: [0, 1, 5, 4], c: [96, 108, 132] },
+      { n: [0, 0, 1], v: [4, 5, 7, 6], c: [245, 184, 61] }, { n: [0, 0, -1], v: [0, 2, 3, 1], c: [96, 108, 132] }
+    ];
+    const Ld = this.norm3([-0.3, -0.7, 0.65]), P0 = P([0, 0, 0]);
+    faces.map((f) => {
+      const n = rotate(f.n), pn = P(n);
+      const depth = pn.d - P0.d;
+      const pts = f.v.map((i) => P(V[i]));
+      const avg = pts.reduce((m, p) => m + p.d, 0) / 4;
+      const k = Math.min(1.08, 0.38 + 0.75 * Math.max(0, this.dot3(n, Ld)));
+      return { depth, pts, avg, fill: 'rgb(' + f.c.map((x) => Math.min(255, Math.round(x * k))).join(',') + ')' };
+    }).filter((f) => f.depth < 0).sort((p, q) => q.avg - p.avg).forEach((f) => this.Po(sc, f.pts, f.fill, 1, '#0B0F16', 1.5));
+    this.Ar(sc, P(this.mul3(u, 1.75)), P(this.mul3(u, 2.75)), C.A, 3);
+    this.Tx(sc, P(this.mul3(u, 3.05)), 'axis u', C.A, 13);
+    const comp = (name, val, color) => ({ name, val: this.f2(val), color, left: (val >= 0 ? 50 : 50 + val * 50).toFixed(1), w: Math.max(0.6, Math.abs(val) * 50).toFixed(1) });
+    const second = s.qAngle >= 360;
+    Object.assign(r, { angle: s.qAngle.toFixed(0) + '°', angleVal: Math.round(s.qAngle), yaw: s.qYaw.toFixed(0) + '°', yawVal: s.qYaw, pitch: s.qPitch.toFixed(0) + '°', pitchVal: s.qPitch,
+      axis: this.vs3(u), comps: [comp('w', w, '#E6EAF2'), comp('x', qv[0], C.R), comp('y', qv[1], C.B), comp('z', qv[2], C.A)],
+      norm: Math.hypot(w, qv[0], qv[1], qv[2]).toFixed(3),
+      note: second ? 'Second lap (θ > 360°): every component has flipped sign compared with the first lap, yet the cube looks identical. q and −q are the same rotation.' : 'First lap (θ < 360°). Watch w: it starts at 1, passes 0 at 180° and reaches −1 at 360°.',
+      noteBg: second ? '#2A1A22' : '#1A2030', noteFg: second ? '#F7B6D3' : '#C9D1E0',
+      hint: 'Sliders set axis and angle · colored faces are +x, +y, +z', title: 'q = (cos θ⁄2, u sin θ⁄2)' });
+  }
+
+  renderVals() {
+    const s = this.state, topic = this.topicOf(), sc = this.sc(), r = {};
+    const map = { dir: 'sceneDir', norm: 'sceneNorm', dot: 'sceneDot', cross: 'sceneCross', lerp: 'sceneLerp', slerp: 'sceneSlerp', inv: 'sceneInv', gimbal: 'sceneGimbal', quat: 'sceneQuat' };
+    this[map[topic] || 'sceneDir'](sc, r);
+    const topics = [['dir', '01', 'Directions'], ['norm', '02', 'Normalize'], ['dot', '03', 'Dot product'], ['cross', '04', 'Cross product'], ['lerp', '05', 'Lerp'], ['slerp', '06', 'Slerp'], ['inv', '07', 'Inverse lerp'], ['gimbal', '08', 'Gimbal lock'], ['quat', '09', 'Quaternions']];
+    const tabs = topics.map(([id, num, label]) => {
+      const on = id === topic;
+      return { id, num, label, pressed: on, bg: on ? '#F06FB0' : 'transparent', fg: on ? '#0E1117' : '#C9D1E0', bd: on ? '#F06FB0' : '#2A3344', pick: () => this.setState({ topic: id, drag: null }) };
+    });
+    const num = (key) => (e) => this.setState({ [key]: parseFloat(e.target.value) });
+    const numPause = (key) => (e) => this.setState({ [key]: parseFloat(e.target.value), playing: false });
+    const setZ = (key) => (e) => { const v = this.state[key], hd = Math.atan2(v[1], v[0]), el = parseFloat(e.target.value) * Math.PI / 180; this.setState({ [key]: [Math.cos(el) * Math.cos(hd), Math.cos(el) * Math.sin(hd), Math.sin(el)] }); };
+    const gLocked = Math.abs(Math.cos(s.gPitch * Math.PI / 180)) < 0.035;
+    const is = {}; topics.forEach(([id]) => { is[id] = id === topic; });
+    return {
+      tabs, is, r, scene: sc,
+      stageTitle: r.title, hint: r.hint,
+      playing: s.playing, paused: !s.playing, playText: s.playing ? 'Pause' : 'Play', playLabel: s.playing ? 'Pause animation' : 'Play animation',
+      togglePlay: () => this.setState({ playing: !s.playing }),
+      reset: () => { const d = this.defaults(); d.topic = s.topic; d.playing = s.playing; this.setState(d); },
+      onMove: this.onMove, onUp: this.onUp,
+      swapCross: () => this.setState({ crossSwap: !s.crossSwap }),
+      easeLinear: () => this.setState({ lerpEase: 'linear' }),
+      easeSmooth: () => this.setState({ lerpEase: 'smooth' }),
+      toggleLock: () => this.setState({ gPitch: gLocked ? 20 : 90 }),
+      set: { crossAz: setZ('crossA'), crossBz: setZ('crossB'), crossYaw: (e) => this.setState({ crossYaw: parseFloat(e.target.value) * Math.PI / 180 }),
+        gYaw: num('gYaw'), gPitch: num('gPitch'), gRoll: numPause('gRoll'), lerpT: numPause('lerpT'), slerpT: numPause('slerpT'), invV: numPause('invV'), qAngle: numPause('qAngle'), qYaw: num('qYaw'), qPitch: num('qPitch') }
+    };
+  }
+}
+
+const params = new URLSearchParams(location.search);
+const props = {"speed": 1, "showGrid": true, "startTopic": "dir"};
+if (params.get('topic')) props.startTopic = params.get('topic');
+if (params.get('speed')) props.speed = parseFloat(params.get('speed')) || props.speed;
+if (params.get('grid') === '0') props.showGrid = false;
+mount(Component, props);
+</script>
+</body>
+</html>
