@@ -1,4 +1,4 @@
-# Vector Lab — MathVisualizer
+# Math Visualizer
 
 An interactive, animated explainer for the math behind games, shaders and animation rigs: vectors, rotations, waves, noise, easing and physics.
 
@@ -36,7 +36,7 @@ An interactive, animated explainer for the math behind games, shaders and animat
 
 ```html
 <iframe src="https://qhenshaw.github.io/MathVisualizer/" width="100%" height="1000"
-        style="border:0" title="Vector Lab"></iframe>
+        style="border:0" title="Math Visualizer"></iframe>
 ```
 
 URL options:

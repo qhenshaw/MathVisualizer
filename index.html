@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vector Lab</title>
-<meta name="description" content="Interactive, animated explainer for vector math: directions, normalization, dot and cross products, lerp, slerp, inverse lerp, gimbal lock and quaternions.">
+<title>Math Visualizer</title>
+<meta name="description" content="Interactive, animated explainer for the math behind games: vectors, rotations, waves, noise, easing and physics.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230E1117'/%3E%3Cpath d='M7 25 L24 8' stroke='%23F06FB0' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M15 8 H24 V17' fill='none' stroke='%23F06FB0' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap">
@@ -17,7 +17,7 @@ button:focus-visible{outline:2px solid #F06FB0;outline-offset:2px}
 </style>
 </head>
 <body>
-<div id="app"><p style="font-family: system-ui, sans-serif; color: #B4BDCC; padding: 32px">Loading Vector Lab…</p></div>
+<div id="app"><p style="font-family: system-ui, sans-serif; color: #B4BDCC; padding: 32px">Loading Math Visualizer…</p></div>
 <template id="dc-template">
 <div style="min-height: 100vh; background: #0E1117; color: #E6EAF2; font-family: 'Space Grotesk', system-ui, sans-serif; padding: 32px 20px 48px; box-sizing: border-box">
 <div style="max-width: 1360px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px">
@@ -25,7 +25,7 @@ button:focus-visible{outline:2px solid #F06FB0;outline-offset:2px}
 <header style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px">
 <div style="display: flex; flex-direction: column; gap: 8px; max-width: 760px">
 <p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #F06FB0">Interactive primer · vectors, rotations, waves &amp; noise</p>
-<h1 style="margin: 0; font-size: 44px; line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; color: #F2F4F8">Vector Lab</h1>
+<h1 style="margin: 0; font-size: 44px; line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; color: #F2F4F8">Math Visualizer</h1>
 <p style="margin: 0; font-size: 16px; line-height: 1.5; color: #B4BDCC">The math behind every game engine, shader and animation rig. Drag the handles, scrub the sliders, and watch the numbers follow.</p>
 </div>
 <div style="display: flex; gap: 10px; flex-wrap: wrap">
@@ -500,11 +500,13 @@ edges = F2 − F1</div>
 <button type="button" onClick="{{b.pick}}" aria-pressed="{{b.on}}" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid {{b.bd}}; background: {{b.bg}}; color: {{b.fg}}; font-size: 14px; font-weight: 600; cursor: pointer">{{b.label}}</button>
 </sc-for>
 </div>
+<div style="display: flex; gap: 12px; flex-wrap: wrap"><label style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 120px; font-size: 13px; color: #A3ADBF">Start value<input type="number" step="any" inputmode="decimal" value="{{r.startStr}}" onChange="{{set.easeStart}}" style="min-height: 44px; width: 100%; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid #2E3748; background: #0B0F16; color: #F2F4F8; font-family: 'JetBrains Mono', monospace; font-size: 15px"></label><label style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 120px; font-size: 13px; color: #A3ADBF">End value<input type="number" step="any" inputmode="decimal" value="{{r.endStr}}" onChange="{{set.easeEnd}}" style="min-height: 44px; width: 100%; box-sizing: border-box; padding: 0 12px; border-radius: 10px; border: 1px solid #2E3748; background: #0B0F16; color: #F2F4F8; font-family: 'JetBrains Mono', monospace; font-size: 15px"></label></div>
 <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Time t</span><span style="font-family: 'JetBrains Mono', monospace; color: #E6EAF2">{{r.t}}</span></span><input type="range" min="0" max="1" step="0.01" value="{{r.tVal}}" onChange="{{set.easeT}}"></label>
 </div>
 <div style="display: flex; flex-direction: column">
 <div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Linear t</span><span style="font-family: 'JetBrains Mono', monospace; color: #B4BDCC; text-align: right">{{r.t}}</span></div>
 <div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">{{r.fname}}(t)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0; text-align: right; font-weight: 600">{{r.v}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Output = start + (end − start) · ease</span><span style="font-family: 'JetBrains Mono', monospace; color: #5EE0A8; text-align: right; font-weight: 600">{{r.out}}</span></div>
 <div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Speed (slope) right now</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.speed}}</span></div>
 <div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">Leaves 0 … 1?</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.leaves}}</span></div>
 </div>
@@ -595,7 +597,7 @@ a = F / m
 </div>
 </div>
 </template>
-<noscript><p style="font-family: system-ui, sans-serif; color: #E6EAF2; padding: 32px">Vector Lab needs JavaScript to run.</p></noscript>
+<noscript><p style="font-family: system-ui, sans-serif; color: #E6EAF2; padding: 32px">Math Visualizer needs JavaScript to run.</p></noscript>
 <script type="module">
 import { DCLogic, mount } from './runtime.js';
 
@@ -620,7 +622,7 @@ class Component extends DCLogic {
       sawX: 0, sawFreq: 1, sawShape: 'saw',
       perlinT: 0, perlinOct: 1, perlinScale: 6, perlinProbe: { x: 300, y: 210 }, perlinArrows: true,
       vorSeeds: this.makeSeeds(), vorT: 0, vorMode: 'cells', vorCount: 12, vorProbe: { x: 420, y: 300 },
-      easeT: 0, easeMode: 'inout', easePolyVar: 'quad', easeSineVar: 'sine', easeBackVar: 'back',
+      easeT: 0, easeStart: '0', easeEnd: '1', easeMode: 'inout', easePolyVar: 'quad', easeSineVar: 'sine', easeBackVar: 'back',
       physT: 0, paX: 2, paV: 0, paF: 1.5, paM: 1, paJ: 4, paHist: [],
       dX: 2, dV: 8, dK: 0.6, dAng: 0, dOm: 9, dKa: 0.4, dHist: [],
       spY: 1.6, spV: 0, spK: 20, spC: 1, spM: 1, spIdle: 0, spHist: []
@@ -1349,6 +1351,8 @@ class Component extends DCLogic {
     }[topic];
     const name = fam.varKey ? s[fam.varKey] : 'bounce', mode = s.easeMode, t = Math.min(1, s.easeT);
     const E = (x) => this.ease(name, mode, x), v = E(t);
+    const pn = (str, d) => { const n = parseFloat(str); return isFinite(n) ? n : d; }, va = pn(s.easeStart, 0), vb = pn(s.easeEnd, 1), out = va + (vb - va) * v;
+    const fmt = (n) => Math.abs(n) >= 1000 ? n.toFixed(0) : String(Math.round(n * 100) / 100);
     const x0 = 60, x1 = 380, Y = (val) => 380 - 240 * val, X = (tt) => x0 + (x1 - x0) * tt;
     if (fam.varKey === 'easeBackVar') this.Po(sc, [{ x: x0, y: 40 }, { x: 640, y: 40 }, { x: 640, y: Y(1) }, { x: x0, y: Y(1) }], C.R, 0.05);
     if (fam.varKey === 'easeBackVar') this.Po(sc, [{ x: x0, y: Y(0) }, { x: 640, y: Y(0) }, { x: 640, y: 470 }, { x: x0, y: 470 }], C.R, 0.05);
@@ -1357,8 +1361,8 @@ class Component extends DCLogic {
       sc.grid.push({ x1: X(g), y1: Y(0), x2: X(g), y2: Y(1), stroke: g === 0 ? C.axis : C.grid, sw: g === 0 ? 1.5 : 1 });
       this.Tx(sc, { x: X(g), y: Y(0) + 20 }, String(g), '#758199', 10, 'middle', 400);
     });
-    this.Tx(sc, { x: x0 - 10, y: Y(0) + 4 }, '0', '#758199', 10, 'end', 400);
-    this.Tx(sc, { x: x0 - 10, y: Y(1) + 4 }, '1', '#758199', 10, 'end', 400);
+    this.Tx(sc, { x: x0 - 10, y: Y(0) + 4 }, fmt(va), C.A, 11, 'end', 600);
+    this.Tx(sc, { x: x0 - 10, y: Y(1) + 4 }, fmt(vb), C.B, 11, 'end', 600);
     this.Tx(sc, { x: x1, y: Y(0) + 40 }, 'time t →', '#A3ADBF', 11, 'end', 500);
     this.Tx(sc, { x: x0, y: 30 }, 'value', '#A3ADBF', 11, 'start', 500);
     this.L(sc, { x: X(0), y: Y(0) }, { x: X(1), y: Y(1) }, '#8C97AB', 1.5, 0.6, '5 6');
@@ -1378,14 +1382,16 @@ class Component extends DCLogic {
     this.L(sc, pt, { x: tx1, y: pt.y }, C.R, 1.5, 0.6, '4 5');
     this.Dot(sc, pt, 7, C.R, '#F2F4F8', 2);
     this.Dot(sc, { x: tx1, y: pt.y }, 13, C.R, '#F2F4F8', 2.5);
+    this.Tx(sc, { x: tx1 + 20, y: pt.y + 4 }, fmt(out), C.U, 12, 'start', 600);
+    [[Y(0), va, C.A], [Y(1), vb, C.B]].forEach(([yy, val, col]) => this.Tx(sc, { x: tx2 + 20, y: yy + 4 }, fmt(val), col, 11, 'start', 600));
     this.Dot(sc, { x: tx2, y: Y(t) }, 13, '#8C97AB', '#F2F4F8', 2.5);
     const h = 0.002, sp = (E(Math.min(1, t + h)) - E(Math.max(0, t - h))) / (Math.min(1, t + h) - Math.max(0, t - h));
     let lo = 0, hi = 1; for (let i = 0; i <= 200; i++) { const e = E(i / 200); lo = Math.min(lo, e); hi = Math.max(hi, e); }
     const modeName = { in: 'In', out: 'Out', inout: 'InOut' }[mode], vname = name.charAt(0).toUpperCase() + name.slice(1), fname = 'ease' + modeName + vname;
     const modeLine = mode === 'in' ? 'y = in(t)' : (mode === 'out' ? 'y = out(t) = 1 − in(1 − t)' : 'y = t < ½ ? in(2t) / 2\n         : 1 − in(2 − 2t) / 2');
-    Object.assign(r, { eyebrow: 'Easing · ' + fam.n + ' · ' + fam.title, h2: fam.h2, desc: fam.desc, formula: (name === 'bounce' ? fam.f.bounce + '\nin(t) = 1 − out(1 − t)' : fam.f[name]) + '\n' + modeLine,
+    Object.assign(r, { eyebrow: 'Easing · ' + fam.n + ' · ' + fam.title, h2: fam.h2, desc: fam.desc, formula: (name === 'bounce' ? fam.f.bounce + '\nin(t) = 1 − out(1 − t)' : fam.f[name]) + '\n' + modeLine + '\nvalue = start + (end − start) · y',
       hasVar: !!fam.varKey, vars: fam.varKey ? this.pills(fam.vars, name, fam.varKey) : [], modes: this.pills([['in', 'Ease in'], ['out', 'Ease out'], ['inout', 'Ease in-out']], mode, 'easeMode'),
-      t: t.toFixed(2), tVal: t, v: v.toFixed(3), fname, speed: sp.toFixed(2) + '×', leaves: lo < -0.001 || hi > 1.001 ? 'yes: ' + lo.toFixed(2) + ' … ' + hi.toFixed(2) : 'no',
+      t: t.toFixed(2), tVal: t, v: v.toFixed(3), out: fmt(out), startStr: s.easeStart, endStr: s.easeEnd, fname, speed: sp.toFixed(2) + '×', leaves: lo < -0.001 || hi > 1.001 ? 'yes: ' + lo.toFixed(2) + ' … ' + hi.toFixed(2) : 'no',
       hint: 'Pick a direction · the balls replay the motion', title: fname + '(t)' });
   }
 
@@ -1534,7 +1540,7 @@ class Component extends DCLogic {
       toggleArrows: () => this.setState({ perlinArrows: !s.perlinArrows }),
       toggleLock: () => this.setState({ gPitch: gLocked ? 20 : 90 }),
       set: { crossAz: setZ('crossA'), crossBz: setZ('crossB'), crossYaw: (e) => this.setState({ crossYaw: parseFloat(e.target.value) * Math.PI / 180 }),
-        gYaw: num('gYaw'), sineFreq: num('sineFreq'), sineAmp: num('sineAmp'), sineShift: num('sineShift'), sawFreq: num('sawFreq'), perlinOct: num('perlinOct'), perlinScale: num('perlinScale'), vorCount: num('vorCount'), easeT: numPause('easeT'), paF: num('paF'), paM: num('paM'), paJ: num('paJ'), dK: num('dK'), dKa: num('dKa'), spK: num('spK'), spC: num('spC'), spM: num('spM'), gPitch: num('gPitch'), gRoll: numPause('gRoll'), lerpT: numPause('lerpT'), slerpT: numPause('slerpT'), invT: numPause('invT'), qAngle: numPause('qAngle'), qYaw: num('qYaw'), qPitch: num('qPitch') }
+        gYaw: num('gYaw'), sineFreq: num('sineFreq'), sineAmp: num('sineAmp'), sineShift: num('sineShift'), sawFreq: num('sawFreq'), perlinOct: num('perlinOct'), perlinScale: num('perlinScale'), vorCount: num('vorCount'), easeT: numPause('easeT'), easeStart: (e) => this.setState({ easeStart: e.target.value }), easeEnd: (e) => this.setState({ easeEnd: e.target.value }), paF: num('paF'), paM: num('paM'), paJ: num('paJ'), dK: num('dK'), dKa: num('dKa'), spK: num('spK'), spC: num('spC'), spM: num('spM'), gPitch: num('gPitch'), gRoll: numPause('gRoll'), lerpT: numPause('lerpT'), slerpT: numPause('slerpT'), invT: numPause('invT'), qAngle: numPause('qAngle'), qYaw: num('qYaw'), qPitch: num('qPitch') }
     };
   }
 }

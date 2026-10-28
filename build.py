@@ -22,17 +22,17 @@ html = f"""<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vector Lab</title>
-<meta name="description" content="Interactive, animated explainer for vector math: directions, normalization, dot and cross products, lerp, slerp, inverse lerp, gimbal lock and quaternions.">
+<title>Math Visualizer</title>
+<meta name="description" content="Interactive, animated explainer for the math behind games: vectors, rotations, waves, noise, easing and physics.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230E1117'/%3E%3Cpath d='M7 25 L24 8' stroke='%23F06FB0' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M15 8 H24 V17' fill='none' stroke='%23F06FB0' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 {helmet}
 </head>
 <body>
-<div id="app"><p style="font-family: system-ui, sans-serif; color: #B4BDCC; padding: 32px">Loading Vector Lab…</p></div>
+<div id="app"><p style="font-family: system-ui, sans-serif; color: #B4BDCC; padding: 32px">Loading Math Visualizer…</p></div>
 <template id="dc-template">
 {body}
 </template>
-<noscript><p style="font-family: system-ui, sans-serif; color: #E6EAF2; padding: 32px">Vector Lab needs JavaScript to run.</p></noscript>
+<noscript><p style="font-family: system-ui, sans-serif; color: #E6EAF2; padding: 32px">Math Visualizer needs JavaScript to run.</p></noscript>
 <script type="module">
 import {{ DCLogic, mount }} from './runtime.js';
 
