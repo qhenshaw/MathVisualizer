@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Math Visualizer</title>
-<meta name="description" content="Interactive, animated explainer for the math behind games: vectors, rotations, waves, noise, easing and physics.">
+<meta name="description" content="Interactive, animated explainer for the math behind games: vectors, rotations, waves, noise, easing, physics and textures.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230E1117'/%3E%3Cpath d='M7 25 L24 8' stroke='%23F06FB0' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M15 8 H24 V17' fill='none' stroke='%23F06FB0' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap">
@@ -24,7 +24,7 @@ button:focus-visible{outline:2px solid #F06FB0;outline-offset:2px}
 
 <header style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px">
 <div style="display: flex; flex-direction: column; gap: 8px; max-width: 760px">
-<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #F06FB0">Interactive primer · vectors, rotations, waves &amp; noise</p>
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #F06FB0">Interactive primer · vectors, rotations, waves, easing, physics &amp; textures</p>
 <h1 style="margin: 0; font-size: 44px; line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; color: #F2F4F8">Math Visualizer</h1>
 <p style="margin: 0; font-size: 16px; line-height: 1.5; color: #B4BDCC">The math behind every game engine, shader and animation rig. Drag the handles, scrub the sliders, and watch the numbers follow.</p>
 </div>
@@ -592,6 +592,38 @@ a = F / m
 <p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> camera follow and UI that settles naturally (SmoothDamp, spring tweens), suspension and ragdoll joints, cloth, hair and jiggle bones.</p>
 </div>
 </sc-if>
+<sc-if value="{{is.normals}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Texture · 01 · Normals &amp; normal maps</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Which way does the surface face?</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">A normal is a unit vector pointing straight out of a surface, and basic lighting is just the dot product of the normal with the light direction. In a mesh, each vertex stores a normal averaged from the faces around it, and shading blends between them so a few flat faces look smoothly curved. Switch to face normals to see the facets. A normal map stores a normal for every texel, packed into RGB, so a perfectly flat polygon can be lit as if it had bumps. Drag the light (top) and the probe (bottom left).</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">vertex n = normalize(Σ adjacent face normals)
+brightness = max(0, n · L)
+store:  RGB = n · 0.5 + 0.5
+read:   n = RGB · 2 − 1</div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div role="group" aria-label="Normal type" style="display: flex; gap: 8px; flex-wrap: wrap">
+<sc-for list="{{r.modes}}" as="b" hint-placeholder-count="2">
+<button type="button" onClick="{{b.pick}}" aria-pressed="{{b.on}}" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid {{b.bd}}; background: {{b.bg}}; color: {{b.fg}}; font-size: 14px; font-weight: 600; cursor: pointer">{{b.label}}</button>
+</sc-for>
+</div>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Mesh vertices</span><span style="font-family: 'JetBrains Mono', monospace; color: #E6EAF2">{{r.verts}}</span></span><input type="range" min="4" max="24" step="1" value="{{r.vertsVal}}" onChange="{{set.nmVerts}}"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Surface height</span><span style="font-family: 'JetBrains Mono', monospace; color: #E6EAF2">{{r.amp}}</span></span><input type="range" min="0" max="2" step="0.05" value="{{r.ampVal}}" onChange="{{set.nmAmp}}"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Normal map strength</span><span style="font-family: 'JetBrains Mono', monospace; color: #5AB8F5">{{r.str}}</span></span><input type="range" min="0" max="3" step="0.05" value="{{r.strVal}}" onChange="{{set.nmStr}}"></label>
+</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Light direction L</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D; text-align: right">{{r.L}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Probe texel</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.cell}}</span></div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Texel color (R, G, B)</span><span style="display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; color: #F2F4F8"><span style="width: 18px; height: 18px; border-radius: 4px; border: 1px solid #2E3748; background: {{r.texCol}}"></span>{{r.rgb}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Decoded normal n = RGB · 2 − 1</span><span style="font-family: 'JetBrains Mono', monospace; color: #5EE0A8; text-align: right; font-weight: 600">{{r.n}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Brightness n · L with the map</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0; text-align: right; font-weight: 600">{{r.ndl}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">Brightness without the map</span><span style="font-family: 'JetBrains Mono', monospace; color: #B4BDCC; text-align: right">{{r.flat}}</span></div>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> lighting every 3D model; normal maps add bricks, scratches, pores and fabric weave without extra polygons. This map uses the OpenGL convention (green = up); DirectX-style maps flip the green channel.</p>
+</div>
+</sc-if>
 </aside>
 </div>
 </div>
@@ -625,7 +657,8 @@ class Component extends DCLogic {
       easeT: 0, easeStart: '0', easeEnd: '1', easeMode: 'inout', easePolyVar: 'quad', easeSineVar: 'sine', easeBackVar: 'back',
       physT: 0, paX: 2, paV: 0, paF: 1.5, paM: 1, paJ: 4, paHist: [],
       dX: 2, dV: 8, dK: 0.6, dAng: 0, dOm: 9, dKa: 0.4, dHist: [],
-      spY: 1.6, spV: 0, spK: 20, spC: 1, spM: 1, spIdle: 0, spHist: []
+      spY: 1.6, spV: 0, spK: 20, spC: 1, spM: 1, spIdle: 0, spHist: [],
+      nmPhase: 0, nmMode: 'smooth', nmVerts: 10, nmAmp: 1, nmStr: 1, nmLight: { x: 470, y: 40 }, nmProbe: { x: 128, y: 340 }
     };
   }
 
@@ -698,6 +731,7 @@ class Component extends DCLogic {
       if (idle > 1.2) { y = 1.6; v = 0; idle = 0; }
       return { spY: y, spV: v, spIdle: idle, physT: now, spHist: this.pushHist(s.spHist, [{ t: now, y }], now, 7) };
     }
+    if (t === 'normals') return { nmPhase: s.nmPhase + 0.5 * k };
     if (t.indexOf('ease') === 0) return { easeT: (s.easeT + 0.5 * k) % 1.5 };
     if (t === 'quat') return { qAngle: (s.qAngle + 45 * k) % 720 };
     return null;
@@ -731,6 +765,8 @@ class Component extends DCLogic {
       this.setState({ [key]: [Math.cos(el) * Math.cos(hd), Math.cos(el) * Math.sin(hd), Math.sin(el)] });
       return;
     }
+    if (key === 'nmLight') { this.setState({ nmLight: { x: Math.max(20, Math.min(620, sx)), y: Math.max(14, Math.min(110, sy)) } }); return; }
+    if (key === 'nmProbe') { this.setState({ nmProbe: { x: Math.max(21, Math.min(307, sx)), y: Math.max(251, Math.min(449, sy)) } }); return; }
     if (key === 'spMass') { this.setState({ spY: Math.max(-3, Math.min(3, (sy - 230) / 60)), spV: 0, spIdle: 0 }); return; }
     if (key === 'perlinProbe' || key === 'vorProbe') { this.setState({ [key]: { x: sx, y: sy } }); return; }
     if (key.indexOf('vorSeed:') === 0) {
@@ -1499,19 +1535,89 @@ class Component extends DCLogic {
       hint: 'Drag the mass and let go', title: 'F = −k x − c v · ζ = ' + z.toFixed(2) });
   }
 
+  sceneNormals(sc, r) {
+    const s = this.state, C = this.C;
+    const shadeCol = (b) => { const k = 0.12 + 0.88 * Math.max(0, Math.min(1, b)); return 'rgb(' + Math.round(26 + 190 * k) + ',' + Math.round(31 + 190 * k) + ',' + Math.round(44 + 196 * k) + ')'; };
+    // ---------- side view ----------
+    const x0 = 40, x1 = 600, base = 140, bottom = 222, n = s.nmVerts, A = 38 * s.nmAmp, ph = s.nmPhase;
+    const hf = (u) => Math.sin(u * Math.PI * 3 + ph) * 0.7 + Math.sin(u * Math.PI * 6.2 - ph * 0.6) * 0.3;
+    const V = [];
+    for (let i = 0; i < n; i++) { const u = i / (n - 1); V.push({ x: x0 + (x1 - x0) * u, y: base - A * hf(u) }); }
+    const nrm = (v) => { const l = Math.hypot(v.x, v.y) || 1; return { x: v.x / l, y: v.y / l }; };
+    const fn = [];
+    for (let i = 0; i < n - 1; i++) fn.push(nrm({ x: V[i + 1].y - V[i].y, y: -(V[i + 1].x - V[i].x) }));
+    const vn = V.map((_, i) => nrm({ x: (fn[i - 1] ? fn[i - 1].x : 0) + (fn[i] ? fn[i].x : 0), y: (fn[i - 1] ? fn[i - 1].y : 0) + (fn[i] ? fn[i].y : 0) }));
+    const Ls = nrm({ x: s.nmLight.x - 320, y: s.nmLight.y - base });
+    const lit = (q) => q.x * Ls.x + q.y * Ls.y, smooth = s.nmMode === 'smooth';
+    for (let i = 0; i < n - 1; i++) {
+      const steps = smooth ? 8 : 1;
+      for (let j = 0; j < steps; j++) {
+        const a = j / steps, b = (j + 1) / steps, m = (a + b) / 2;
+        const pa = { x: V[i].x + (V[i + 1].x - V[i].x) * a, y: V[i].y + (V[i + 1].y - V[i].y) * a }, pb = { x: V[i].x + (V[i + 1].x - V[i].x) * b, y: V[i].y + (V[i + 1].y - V[i].y) * b };
+        const q = smooth ? nrm({ x: vn[i].x + (vn[i + 1].x - vn[i].x) * m, y: vn[i].y + (vn[i + 1].y - vn[i].y) * m }) : fn[i], col = shadeCol(lit(q));
+        this.Po(sc, [pa, pb, { x: pb.x, y: bottom }, { x: pa.x, y: bottom }], col, 1, col, 0.8);
+      }
+    }
+    let curve = '';
+    for (let i = 0; i <= 140; i++) { const u = i / 140; curve += (i ? ' L' : 'M') + this.r1(x0 + (x1 - x0) * u) + ' ' + this.r1(base - A * hf(u)); }
+    this.Pa(sc, curve, '#8C97AB', 1.5, 0.7, '4 5');
+    let mesh = '';
+    V.forEach((v, i) => { mesh += (i ? ' L' : 'M') + this.r1(v.x) + ' ' + this.r1(v.y); });
+    this.Pa(sc, mesh, '#F2F4F8', 2.5, 1);
+    if (smooth) V.forEach((v, i) => this.Ar(sc, v, { x: v.x + vn[i].x * 36, y: v.y + vn[i].y * 36 }, C.U, 2.5));
+    else fn.forEach((f, i) => { const m = { x: (V[i].x + V[i + 1].x) / 2, y: (V[i].y + V[i + 1].y) / 2 }; this.Ar(sc, m, { x: m.x + f.x * 36, y: m.y + f.y * 36 }, C.A, 2.5); });
+    V.forEach((v) => this.Dot(sc, v, 3.5, '#F2F4F8', '#0B0F16', 1.5));
+    const lp = s.nmLight;
+    this.Ar(sc, lp, { x: lp.x - Ls.x * 46, y: lp.y - Ls.y * 46 }, C.A, 2.5, 0.9);
+    this.H(sc, lp, 'nmLight', C.A);
+    this.Tx(sc, { x: lp.x + 18, y: lp.y + 4 }, 'light', C.A, 12, 'start');
+    this.Tx(sc, { x: 20, y: 22 }, smooth ? 'SIDE VIEW · vertex normals, smooth shading' : 'SIDE VIEW · face normals, flat shading', '#A3ADBF', 11, 'start', 500);
+    // ---------- normal map ----------
+    const cols = 32, rows = 20, cw = 9, ch = 10, mx = 20, my = 250, px = 332, k = 0.06 * s.nmStr;
+    const H = (u, v) => { const a = (u * 4) % 1 - 0.5, b = (v * 2.5) % 1 - 0.5, d2 = a * a + b * b; return Math.exp(-d2 * 14); };
+    const texN = (c, rr) => {
+      const u = (c + 0.5) / cols, v = 1 - (rr + 0.5) / rows, e = 0.004;
+      const du = (H(u + e, v) - H(u - e, v)) / (2 * e), dv = (H(u, v + e) - H(u, v - e)) / (2 * e);
+      const x = -du * k, y = -dv * k, l = Math.hypot(x, y, 1);
+      return [x / l, y / l, 1 / l];
+    };
+    const L3 = this.norm3([Ls.x, 0.35, -Ls.y]);
+    for (let rr = 0; rr < rows; rr++) for (let c = 0; c < cols; c++) {
+      const q = texN(c, rr), enc = q.map((x) => Math.round((x * 0.5 + 0.5) * 255));
+      sc.cells.push({ x: mx + c * cw, y: my + rr * ch, w: cw + 0.5, h: ch + 0.5, fill: 'rgb(' + enc.join(',') + ')' });
+      sc.cells.push({ x: px + c * cw, y: my + rr * ch, w: cw + 0.5, h: ch + 0.5, fill: shadeCol(this.dot3(q, L3)) });
+    }
+    this.Tx(sc, { x: mx, y: my - 10 }, 'NORMAL MAP · RGB = n · 0.5 + 0.5', '#A3ADBF', 11, 'start', 500);
+    this.Tx(sc, { x: px, y: my - 10 }, 'FLAT PLANE LIT WITH THE MAP', '#A3ADBF', 11, 'start', 500);
+    const P = s.nmProbe, pc = Math.max(0, Math.min(cols - 1, Math.floor((P.x - mx) / cw))), pr = Math.max(0, Math.min(rows - 1, Math.floor((P.y - my) / ch)));
+    const q = texN(pc, pr), enc = q.map((x) => Math.round((x * 0.5 + 0.5) * 255)), dec = enc.map((x) => x / 255 * 2 - 1);
+    [mx, px].forEach((ox) => this.Po(sc, [{ x: ox + pc * cw, y: my + pr * ch }, { x: ox + (pc + 1) * cw, y: my + pr * ch }, { x: ox + (pc + 1) * cw, y: my + (pr + 1) * ch }, { x: ox + pc * cw, y: my + (pr + 1) * ch }], 'none', 0, '#F2F4F8', 2.5));
+    const cc = { x: mx + (pc + 0.5) * cw, y: my + (pr + 0.5) * ch }, cc2 = { x: px + (pc + 0.5) * cw, y: cc.y };
+    this.Ar(sc, cc, { x: cc.x + q[0] * 70, y: cc.y - q[1] * 70 }, C.A, 3);
+    this.Ar(sc, cc2, { x: cc2.x + q[0] * 70, y: cc2.y - q[1] * 70 }, C.A, 3);
+    this.H(sc, P, 'nmProbe', C.R);
+    const f2 = (x) => this.f2(x);
+    Object.assign(r, { modes: this.pills([['smooth', 'Vertex normals (smooth)'], ['flat', 'Face normals (flat)']], s.nmMode, 'nmMode'),
+      verts: String(n), vertsVal: n, amp: s.nmAmp.toFixed(2), ampVal: s.nmAmp, str: s.nmStr.toFixed(2), strVal: s.nmStr,
+      L: '(' + f2(L3[0]) + ', ' + f2(L3[1]) + ', ' + f2(L3[2]) + ')', cell: '(' + pc + ', ' + pr + ')', rgb: enc.join(', '), texCol: 'rgb(' + enc.join(',') + ')',
+      n: '(' + f2(dec[0]) + ', ' + f2(dec[1]) + ', ' + f2(dec[2]) + ')', ndl: Math.max(0, this.dot3(q, L3)).toFixed(2), flat: Math.max(0, L3[2]).toFixed(2),
+      hint: 'Drag the light and the probe', title: smooth ? 'n · L with interpolated vertex normals' : 'n · L with flat face normals' });
+  }
+
   renderVals() {
     const s = this.state, topic = this.topicOf(), sc = this.sc(), r = {};
     const map = { dir: 'sceneDir', norm: 'sceneNorm', dot: 'sceneDot', cross: 'sceneCross', lerp: 'sceneLerp', slerp: 'sceneSlerp', inv: 'sceneInv', gimbal: 'sceneGimbal', quat: 'sceneQuat', sine: 'sceneSine', saw: 'sceneSaw', perlin: 'scenePerlin', voronoi: 'sceneVoronoi' };
     const isEase = topic.indexOf('ease') === 0;
-    map.physAccel = 'scenePhysAccel'; map.physDrag = 'scenePhysDrag'; map.physSpring = 'scenePhysSpring';
+    map.normals = 'sceneNormals'; map.physAccel = 'scenePhysAccel'; map.physDrag = 'scenePhysDrag'; map.physSpring = 'scenePhysSpring';
     if (isEase) this.sceneEase(sc, r, topic); else this[map[topic] || 'sceneDir'](sc, r);
     const topics = [['dir', '01', 'Directions', 'vec'], ['norm', '02', 'Normalize', 'vec'], ['dot', '03', 'Dot product', 'vec'], ['cross', '04', 'Cross product', 'vec'], ['lerp', '05', 'Lerp', 'vec'], ['inv', '06', 'Inverse lerp', 'vec'],
       ['quat', '01', 'Quaternions', 'rot'], ['gimbal', '02', 'Gimbal lock', 'rot'], ['slerp', '03', 'Slerp', 'rot'],
       ['sine', '01', 'Sine & cosine', 'wave'], ['saw', '02', 'Sawtooth', 'wave'], ['perlin', '03', 'Perlin noise', 'wave'], ['voronoi', '04', 'Voronoi', 'wave'],
       ['easePoly', '01', 'Quad & Cubic', 'ease'], ['easeSine', '02', 'Sine & Expo', 'ease'], ['easeBack', '03', 'Back & Elastic', 'ease'], ['easeBounce', '04', 'Bounce', 'ease'],
-      ['physAccel', '01', 'Acceleration & impulse', 'phys'], ['physDrag', '02', 'Linear & angular drag', 'phys'], ['physSpring', '03', 'Springs', 'phys']];
+      ['physAccel', '01', 'Acceleration & impulse', 'phys'], ['physDrag', '02', 'Linear & angular drag', 'phys'], ['physSpring', '03', 'Springs', 'phys'],
+      ['normals', '01', 'Normals & normal maps', 'tex']];
     const catOf = (id) => (topics.find((x) => x[0] === id) || topics[0])[3], cat = catOf(topic), last = s.lastByCat || {};
-    const cats = [['vec', 'Vectors'], ['rot', 'Rotations'], ['wave', 'Waves & Noise'], ['ease', 'Easing'], ['phys', 'Physics']].map(([id, label]) => {
+    const cats = [['vec', 'Vectors'], ['rot', 'Rotations'], ['wave', 'Waves & Noise'], ['ease', 'Easing'], ['phys', 'Physics'], ['tex', 'Texture']].map(([id, label]) => {
       const on = id === cat, first = topics.find((x) => x[3] === id)[0];
       return { id, label, pressed: on, count: String(topics.filter((x) => x[3] === id).length), bg: on ? '#E6EAF2' : 'transparent', fg: on ? '#0E1117' : '#C9D1E0',
         pick: () => { if (!on) this.setState({ topic: last[id] || first, drag: null, lastByCat: { ...last, [cat]: topic } }); } };
@@ -1540,7 +1646,7 @@ class Component extends DCLogic {
       toggleArrows: () => this.setState({ perlinArrows: !s.perlinArrows }),
       toggleLock: () => this.setState({ gPitch: gLocked ? 20 : 90 }),
       set: { crossAz: setZ('crossA'), crossBz: setZ('crossB'), crossYaw: (e) => this.setState({ crossYaw: parseFloat(e.target.value) * Math.PI / 180 }),
-        gYaw: num('gYaw'), sineFreq: num('sineFreq'), sineAmp: num('sineAmp'), sineShift: num('sineShift'), sawFreq: num('sawFreq'), perlinOct: num('perlinOct'), perlinScale: num('perlinScale'), vorCount: num('vorCount'), easeT: numPause('easeT'), easeStart: (e) => this.setState({ easeStart: e.target.value }), easeEnd: (e) => this.setState({ easeEnd: e.target.value }), paF: num('paF'), paM: num('paM'), paJ: num('paJ'), dK: num('dK'), dKa: num('dKa'), spK: num('spK'), spC: num('spC'), spM: num('spM'), gPitch: num('gPitch'), gRoll: numPause('gRoll'), lerpT: numPause('lerpT'), slerpT: numPause('slerpT'), invT: numPause('invT'), qAngle: numPause('qAngle'), qYaw: num('qYaw'), qPitch: num('qPitch') }
+        gYaw: num('gYaw'), sineFreq: num('sineFreq'), sineAmp: num('sineAmp'), sineShift: num('sineShift'), sawFreq: num('sawFreq'), perlinOct: num('perlinOct'), perlinScale: num('perlinScale'), vorCount: num('vorCount'), easeT: numPause('easeT'), nmVerts: num('nmVerts'), nmAmp: num('nmAmp'), nmStr: num('nmStr'), easeStart: (e) => this.setState({ easeStart: e.target.value }), easeEnd: (e) => this.setState({ easeEnd: e.target.value }), paF: num('paF'), paM: num('paM'), paJ: num('paJ'), dK: num('dK'), dKa: num('dKa'), spK: num('spK'), spC: num('spC'), spM: num('spM'), gPitch: num('gPitch'), gRoll: numPause('gRoll'), lerpT: numPause('lerpT'), slerpT: numPause('slerpT'), invT: numPause('invT'), qAngle: numPause('qAngle'), qYaw: num('qYaw'), qPitch: num('qPitch') }
     };
   }
 }
