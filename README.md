@@ -11,10 +11,11 @@ An interactive, animated explainer for the vector math behind games, shaders and
 | 03 | Dot product | Drag two unit vectors; read `A · B = cos θ` on a −1…1 scale |
 | 04 | Cross product | Drag unit vectors in 3D; see `A × B`, the parallelogram and `sin θ` |
 | 05 | Lerp | Blend two points (and colors) by `t`, with optional smoothstep easing |
-| 06 | Slerp | Constant-speed rotation along the arc versus the lerp chord |
-| 07 | Inverse lerp | Remap a value as a straight line through `(a, c)` and `(b, d)` |
-| 08 | Gimbal lock | Yaw / pitch / roll rings; pitch to 90° and lose an axis |
-| 09 | Quaternions | Rotate a cube by axis and angle; watch `w, x, y, z` and the 720° double cover |
+| 06 | Inverse lerp | Slide V between A and B and read back t from 0 to 1 |
+| | **Rotations** | |
+| 01 | Quaternions | Rotate a cube by axis and angle; watch `w, x, y, z` and the 720° double cover |
+| 02 | Gimbal lock | Yaw / pitch / roll rings; pitch to 90° and lose an axis |
+| 03 | Slerp | Constant-speed rotation along the arc versus the lerp chord |
 
 ## Embedding
 

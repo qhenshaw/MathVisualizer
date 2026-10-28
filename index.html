@@ -45,6 +45,15 @@ button:focus-visible{outline:2px solid #F06FB0;outline-offset:2px}
 </div>
 </header>
 
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div role="group" aria-label="Category" style="display: inline-flex; align-self: flex-start; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 14px; background: #131824; border: 1px solid #232B3A">
+<sc-for list="{{cats}}" as="c" hint-placeholder-count="2">
+<button type="button" onClick="{{c.pick}}" aria-pressed="{{c.pressed}}" style="display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 20px; border-radius: 10px; border: 0; background: {{c.bg}}; color: {{c.fg}}; font-size: 16px; font-weight: 600; cursor: pointer">
+<span>{{c.label}}</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; opacity: 0.7">{{c.count}}</span>
+</button>
+</sc-for>
+</div>
 <nav aria-label="Topics" style="display: flex; flex-wrap: wrap; gap: 8px">
 <sc-for list="{{tabs}}" as="t" hint-placeholder-count="8">
 <button type="button" onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid {{t.bd}}; background: {{t.bg}}; color: {{t.fg}}; font-size: 14px; font-weight: 600; cursor: pointer">
@@ -53,6 +62,7 @@ button:focus-visible{outline:2px solid #F06FB0;outline-offset:2px}
 </button>
 </sc-for>
 </nav>
+</div>
 
 <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
 
@@ -117,7 +127,7 @@ button:focus-visible{outline:2px solid #F06FB0;outline-offset:2px}
 <sc-if value="{{is.dir}}" hint-placeholder-val="{{true}}">
 <div style="display: flex; flex-direction: column; gap: 18px">
 <div style="display: flex; flex-direction: column; gap: 8px">
-<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">01 · Vector directions</p>
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Vectors · 01 · Directions</p>
 <h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">To aim at the enemy, subtract the player</h2>
 <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">The player stands at P and the enemy at Q. Q − P gives the offset d (dashed): its length is how far away the enemy is. Dividing d by its length gives the direction (green arrow): a unit vector, always length 1, that only says which way to face. Multiply it by a speed and you get movement toward the enemy that does not depend on how far away they are.</p>
 </div>
@@ -141,7 +151,7 @@ dir = d / |d|      |dir| = 1
 <sc-if value="{{is.norm}}" hint-placeholder-val="{{false}}">
 <div style="display: flex; flex-direction: column; gap: 18px">
 <div style="display: flex; flex-direction: column; gap: 8px">
-<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">02 · Normalization</p>
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Vectors · 02 · Normalization</p>
 <h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Keep the direction, throw away the length</h2>
 <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Dividing a vector by its own length shrinks or stretches it onto the unit circle. The result n is a unit vector: length exactly 1, pointing the same way.</p>
 </div>
@@ -164,7 +174,7 @@ n = v / |v| = (vx / |v|, vy / |v|)
 <sc-if value="{{is.dot}}" hint-placeholder-val="{{false}}">
 <div style="display: flex; flex-direction: column; gap: 18px">
 <div style="display: flex; flex-direction: column; gap: 8px">
-<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">03 · Dot product</p>
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Vectors · 03 · Dot product</p>
 <h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">How much do two vectors agree?</h2>
 <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">The dot product multiplies matching components and adds them up. Here A and B are normalized (length 1, on the dashed unit circle), so the dot product is exactly cos θ: the length of B’s shadow on A, where the dashed line meets A’s line. The scale below the graph shows the result, green when positive and pink when negative. Positive means they point the same way, zero means perpendicular, negative means opposed.</p>
 </div>
@@ -194,7 +204,7 @@ proj = (A · B) A</div>
 <sc-if value="{{is.cross}}" hint-placeholder-val="{{false}}">
 <div style="display: flex; flex-direction: column; gap: 18px">
 <div style="display: flex; flex-direction: column; gap: 8px">
-<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">04 · Cross product</p>
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Vectors · 04 · Cross product</p>
 <h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">A new vector, perpendicular to both</h2>
 <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">In 3D, A × B points straight out of the plane that A and B span, following the right-hand rule. Its length equals the area of the parallelogram they make, so it shrinks to zero when A and B line up. Order matters: B × A flips it. With unit vectors A and B, the length is simply sin θ.</p>
 </div>
@@ -224,7 +234,7 @@ proj = (A · B) A</div>
 <sc-if value="{{is.lerp}}" hint-placeholder-val="{{false}}">
 <div style="display: flex; flex-direction: column; gap: 18px">
 <div style="display: flex; flex-direction: column; gap: 8px">
-<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">05 · Lerp</p>
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Vectors · 05 · Lerp</p>
 <h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Linear interpolation: a slider between two values</h2>
 <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Lerp blends A into B by a fraction t. At t = 0 you get A, at t = 1 you get B, and everything in between lies on the straight line joining them. It works on numbers, points and colors alike. The small dots mark t = 0, 0.1, … 1; switch on smoothstep to see easing bunch them up at the ends.</p>
 </div>
@@ -257,7 +267,7 @@ proj = (A · B) A</div>
 <sc-if value="{{is.slerp}}" hint-placeholder-val="{{false}}">
 <div style="display: flex; flex-direction: column; gap: 18px">
 <div style="display: flex; flex-direction: column; gap: 8px">
-<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">06 · Slerp</p>
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Rotations · 03 · Slerp</p>
 <h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Spherical lerp: travel along the arc, not the chord</h2>
 <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Lerping two unit vectors cuts straight across the circle (grey chord), so the result gets shorter in the middle. Slerp instead rotates at a constant angular rate along the shortest arc and stays length 1 the whole way. The pink ticks mark t = 0.1, 0.2, … and sit evenly spaced along the arc.</p>
 </div>
@@ -277,7 +287,7 @@ slerp(A, B, t) = sin((1 − t)Ω) / sin Ω · A
 <sc-if value="{{is.inv}}" hint-placeholder-val="{{false}}">
 <div style="display: flex; flex-direction: column; gap: 18px">
 <div style="display: flex; flex-direction: column; gap: 8px">
-<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">07 · Inverse lerp</p>
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Vectors · 06 · Inverse lerp</p>
 <h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Given a point, how far along is it?</h2>
 <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Inverse lerp undoes lerp. Lerp takes a fraction t and gives you a point between A and B; inverse lerp takes the point V and gives you back t, from 0 at A to 1 at B. Drag the ends to reshape the line, then drag the pink handle along it and watch t on the scale below.</p>
 </div>
@@ -301,7 +311,7 @@ lerp(A, B, invLerp(A, B, V)) = V</div>
 <sc-if value="{{is.gimbal}}" hint-placeholder-val="{{false}}">
 <div style="display: flex; flex-direction: column; gap: 18px">
 <div style="display: flex; flex-direction: column; gap: 8px">
-<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">08 · Gimbal lock</p>
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Rotations · 02 · Gimbal lock</p>
 <h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Why three angles are not enough</h2>
 <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Euler angles rotate in a fixed order: yaw around the world’s up axis, then pitch, then roll around the object’s own nose. Each ring shows one of those rotations. Pitch the nose straight up to 90° and the pink roll ring swings into the same plane as the amber yaw ring. Yaw and roll now spin the object around the same axis, and one direction of rotation is gone until you pitch back down.</p>
 </div>
@@ -329,7 +339,7 @@ pitch = ±90° → roll axis ∥ yaw axis</div>
 <sc-if value="{{is.quat}}" hint-placeholder-val="{{false}}">
 <div style="display: flex; flex-direction: column; gap: 18px">
 <div style="display: flex; flex-direction: column; gap: 8px">
-<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">09 · Quaternions</p>
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Rotations · 01 · Quaternions</p>
 <h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">A rotation packed into four numbers</h2>
 <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">A unit quaternion stores an axis u and an angle θ: the vector part is the axis scaled by sin(θ/2), the scalar part is cos(θ/2). It rotates the cube around the amber axis with no gimbal lock, composes by multiplication and slerps smoothly. Notice the half angle: after one full turn q has become −q, which is the same orientation. It takes 720° to get back to the same numbers.</p>
 </div>
@@ -855,8 +865,15 @@ class Component extends DCLogic {
     const s = this.state, topic = this.topicOf(), sc = this.sc(), r = {};
     const map = { dir: 'sceneDir', norm: 'sceneNorm', dot: 'sceneDot', cross: 'sceneCross', lerp: 'sceneLerp', slerp: 'sceneSlerp', inv: 'sceneInv', gimbal: 'sceneGimbal', quat: 'sceneQuat' };
     this[map[topic] || 'sceneDir'](sc, r);
-    const topics = [['dir', '01', 'Directions'], ['norm', '02', 'Normalize'], ['dot', '03', 'Dot product'], ['cross', '04', 'Cross product'], ['lerp', '05', 'Lerp'], ['slerp', '06', 'Slerp'], ['inv', '07', 'Inverse lerp'], ['gimbal', '08', 'Gimbal lock'], ['quat', '09', 'Quaternions']];
-    const tabs = topics.map(([id, num, label]) => {
+    const topics = [['dir', '01', 'Directions', 'vec'], ['norm', '02', 'Normalize', 'vec'], ['dot', '03', 'Dot product', 'vec'], ['cross', '04', 'Cross product', 'vec'], ['lerp', '05', 'Lerp', 'vec'], ['inv', '06', 'Inverse lerp', 'vec'],
+      ['quat', '01', 'Quaternions', 'rot'], ['gimbal', '02', 'Gimbal lock', 'rot'], ['slerp', '03', 'Slerp', 'rot']];
+    const catOf = (id) => (topics.find((x) => x[0] === id) || topics[0])[3], cat = catOf(topic), last = s.lastByCat || {};
+    const cats = [['vec', 'Vectors'], ['rot', 'Rotations']].map(([id, label]) => {
+      const on = id === cat, first = topics.find((x) => x[3] === id)[0];
+      return { id, label, pressed: on, count: String(topics.filter((x) => x[3] === id).length), bg: on ? '#E6EAF2' : 'transparent', fg: on ? '#0E1117' : '#C9D1E0',
+        pick: () => { if (!on) this.setState({ topic: last[id] || first, drag: null, lastByCat: { ...last, [cat]: topic } }); } };
+    });
+    const tabs = topics.filter((x) => x[3] === cat).map(([id, num, label]) => {
       const on = id === topic;
       return { id, num, label, pressed: on, bg: on ? '#F06FB0' : 'transparent', fg: on ? '#0E1117' : '#C9D1E0', bd: on ? '#F06FB0' : '#2A3344', pick: () => this.setState({ topic: id, drag: null }) };
     });
@@ -866,7 +883,7 @@ class Component extends DCLogic {
     const gLocked = Math.abs(Math.cos(s.gPitch * Math.PI / 180)) < 0.035;
     const is = {}; topics.forEach(([id]) => { is[id] = id === topic; });
     return {
-      tabs, is, r, scene: sc,
+      tabs, cats, is, r, scene: sc,
       stageTitle: r.title, hint: r.hint,
       playing: s.playing, paused: !s.playing, playText: s.playing ? 'Pause' : 'Play', playLabel: s.playing ? 'Pause animation' : 'Play animation',
       togglePlay: () => this.setState({ playing: !s.playing }),
