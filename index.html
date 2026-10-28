@@ -516,12 +516,13 @@ edges = F2 − F1</div>
 <div style="display: flex; flex-direction: column; gap: 8px">
 <p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Physics · 01 · Acceleration &amp; impulse</p>
 <h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Forces change velocity; impulses change it instantly</h2>
-<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">A constant force F gives the cart a constant acceleration a = F / m, so its velocity changes at a steady rate: a straight slope on the graph. An impulse J is a force packed into a single instant, so velocity jumps by J / m with no slope at all. The walls bounce the cart by applying an impulse of their own. Heavier carts respond less to both.</p>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">A constant force F gives the cart a constant acceleration a = F / m, so its velocity changes at a steady rate: a straight slope on the graph. An impulse J is a force packed into a single instant, so velocity jumps by J / m with no slope at all. When the cart hits a wall, the wall applies an impulse of its own: a light bounce that keeps only 30% of the speed, so a cart pushed into a wall soon comes to rest against it. Heavier carts respond less to both.</p>
 </div>
 <div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">a = F / m
 v ← v + a · Δt
 x ← x + v · Δt
-impulse:  v ← v + J / m</div>
+impulse:  v ← v + J / m
+wall bounce:  v ← −0.3 · v</div>
 <div style="display: flex; flex-direction: column; gap: 14px">
 <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Force F</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D">{{r.F}}</span></span><input type="range" min="-5" max="5" step="0.5" value="{{r.FVal}}" onChange="{{set.paF}}"></label>
 <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Mass m</span><span style="font-family: 'JetBrains Mono', monospace; color: #E6EAF2">{{r.m}}</span></span><input type="range" min="0.5" max="5" step="0.5" value="{{r.mVal}}" onChange="{{set.paM}}"></label>
@@ -672,8 +673,9 @@ class Component extends DCLogic {
     if (t === 'physAccel') {
       const now = s.physT + k, add = [];
       let v = s.paV + (s.paF / s.paM) * k, x = s.paX + v * k;
-      if (x > 15.3) { add.push({ t: now, v }); x = 15.3 - (x - 15.3); v = -Math.abs(v); add.push({ t: now, v, wall: true }); }
-      if (x < 0.7) { add.push({ t: now, v }); x = 0.7 + (0.7 - x); v = Math.abs(v); add.push({ t: now, v, wall: true }); }
+      const e = 0.3, hit = (vin, nv) => { if (Math.abs(vin) > 0.4) { add.push({ t: now, v: vin }); add.push({ t: now, v: nv, wall: true }); } };
+      if (x > 15.3) { const vin = v; x = 15.3; v = -Math.abs(v) * e; if (Math.abs(v) < 0.15) v = 0; hit(vin, v); }
+      if (x < 0.7) { const vin = v; x = 0.7; v = Math.abs(v) * e; if (Math.abs(v) < 0.15) v = 0; hit(vin, v); }
       add.push({ t: now, v });
       return { paV: v, paX: x, physT: now, paHist: this.pushHist(s.paHist, add, now, 9) };
     }
