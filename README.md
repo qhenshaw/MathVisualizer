@@ -1,6 +1,6 @@
 # Vector Lab — MathVisualizer
 
-An interactive, animated explainer for the math behind games, shaders and animation rigs: vectors, rotations, waves and noise.
+An interactive, animated explainer for the math behind games, shaders and animation rigs: vectors, rotations, waves, noise and easing.
 
 **Live:** https://qhenshaw.github.io/MathVisualizer/
 
@@ -22,6 +22,11 @@ An interactive, animated explainer for the math behind games, shaders and animat
 | 02 | Sawtooth | `frac(x·f)` and its triangle and square cousins driving an output bar |
 | 03 | Perlin noise | Gradient arrows, corner votes, fade curve, octaves, and a 1D slice |
 | 04 | Voronoi | Draggable seeds; cells, Worley F1 distance and F2 − F1 edges |
+| | **Easing** | |
+| 01 | Quad & Cubic | Polynomial ease in / out / in-out with an eased ball racing a linear one |
+| 02 | Sine & Expo | The gentlest and the most dramatic standard curves |
+| 03 | Back & Elastic | Curves that overshoot or spring outside 0 … 1 |
+| 04 | Bounce | Shrinking parabolic hops, like a ball landing |
 
 ## Embedding
 
@@ -32,7 +37,7 @@ An interactive, animated explainer for the math behind games, shaders and animat
 
 URL options:
 
-- `?topic=dot` opens on a tab, and its category (`dir`, `norm`, `dot`, `cross`, `lerp`, `inv`, `quat`, `gimbal`, `slerp`, `sine`, `saw`, `perlin`, `voronoi`)
+- `?topic=dot` opens on a tab, and its category (`dir`, `norm`, `dot`, `cross`, `lerp`, `inv`, `quat`, `gimbal`, `slerp`, `sine`, `saw`, `perlin`, `voronoi`, `easePoly`, `easeSine`, `easeBack`, `easeBounce`)
 - `?speed=0.5` changes the animation speed
 - `?grid=0` hides the background grid
 

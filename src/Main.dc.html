@@ -276,7 +276,14 @@ slerp(A, B, t) = sin((1 − t)Ω) / sin Ω · A
   = |V − A| / |B − A|
 1D:  t = (v − a) / (b − a)
 lerp(A, B, invLerp(A, B, V)) = V</div>
-<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Position of V</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0">{{r.t}}</span></span><input type="range" min="0" max="1" step="0.01" value="{{r.tVal}}" onChange="{{set.invT}}"></label>
+<div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #A3ADBF">
+<span style="display: flex; justify-content: space-between"><span>Position of V along A → B</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0">{{r.t}}</span></span>
+<div role="img" aria-label="V is at t = {{r.t}}" style="position: relative; height: 12px; border-radius: 6px; background: #0B0F16; border: 1px solid #232B3A">
+<div style="position: absolute; top: 1px; left: 0; width: {{r.pct}}%; height: 10px; border-radius: 5px; background: #5EE0A8"></div>
+<div style="position: absolute; top: -4px; left: {{r.pct}}%; width: 14px; height: 14px; margin-left: -7px; border-radius: 7px; background: #F06FB0; border: 2px solid #F2F4F8"></div>
+</div>
+<div style="display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8C97AB"><span>0 · A</span><span>1 · B</span></div>
+</div>
 <div style="display: flex; flex-direction: column">
 <div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">A (t = 0)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D">{{r.A}}</span></div>
 <div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">B (t = 1)</span><span style="font-family: 'JetBrains Mono', monospace; color: #5AB8F5">{{r.B}}</span></div>
@@ -471,12 +478,44 @@ edges = F2 − F1</div>
 <p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> cracked ground, stone, scales and cell textures, caustics, shattering effects, and territory maps.</p>
 </div>
 </sc-if>
+<sc-if value="{{is.ease}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">{{r.eyebrow}}</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">{{r.h2}}</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">{{r.desc}}</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">{{r.formula}}</div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<sc-if value="{{r.hasVar}}" hint-placeholder-val="{{true}}">
+<div role="group" aria-label="Variant" style="display: flex; gap: 8px; flex-wrap: wrap">
+<sc-for list="{{r.vars}}" as="b" hint-placeholder-count="3">
+<button type="button" onClick="{{b.pick}}" aria-pressed="{{b.on}}" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid {{b.bd}}; background: {{b.bg}}; color: {{b.fg}}; font-size: 14px; font-weight: 600; cursor: pointer">{{b.label}}</button>
+</sc-for>
+</div>
+</sc-if>
+<div role="group" aria-label="Direction" style="display: flex; gap: 8px; flex-wrap: wrap">
+<sc-for list="{{r.modes}}" as="b" hint-placeholder-count="3">
+<button type="button" onClick="{{b.pick}}" aria-pressed="{{b.on}}" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid {{b.bd}}; background: {{b.bg}}; color: {{b.fg}}; font-size: 14px; font-weight: 600; cursor: pointer">{{b.label}}</button>
+</sc-for>
+</div>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Time t</span><span style="font-family: 'JetBrains Mono', monospace; color: #E6EAF2">{{r.t}}</span></span><input type="range" min="0" max="1" step="0.01" value="{{r.tVal}}" onChange="{{set.easeT}}"></label>
+</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Linear t</span><span style="font-family: 'JetBrains Mono', monospace; color: #B4BDCC; text-align: right">{{r.t}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">{{r.fname}}(t)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0; text-align: right; font-weight: 600">{{r.v}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Speed (slope) right now</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.speed}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">Leaves 0 … 1?</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.leaves}}</span></div>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> UI transitions, camera moves, tweened animation, menus sliding in, jumps and landings, and general game feel.</p>
+</div>
+</sc-if>
 </aside>
 </div>
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"speed":{"editor":"range","min":0.25,"max":2,"step":0.25,"default":1,"section":"Motion"},"showGrid":{"editor":"boolean","default":true,"section":"Stage"},"startTopic":{"editor":"enum","options":["dir","norm","dot","cross","lerp","inv","quat","gimbal","slerp","sine","saw","perlin","voronoi"],"default":"dir","section":"Stage"},"$preview":{"width":1440,"height":1000}}'>
+<script type="text/x-dc" data-dc-script data-props='{"speed":{"editor":"range","min":0.25,"max":2,"step":0.25,"default":1,"section":"Motion"},"showGrid":{"editor":"boolean","default":true,"section":"Stage"},"startTopic":{"editor":"enum","options":["dir","norm","dot","cross","lerp","inv","quat","gimbal","slerp","sine","saw","perlin","voronoi","easePoly","easeSine","easeBack","easeBounce"],"default":"dir","section":"Stage"},"$preview":{"width":1440,"height":1000}}'>
 class Component extends DCLogic {
   C = { A: '#F5B83D', B: '#5AB8F5', R: '#F06FB0', U: '#5EE0A8', muted: '#8C97AB', faint: '#4A556B', text: '#E6EAF2', axis: '#3A4558', grid: '#181F2C' };
 
@@ -497,7 +536,8 @@ class Component extends DCLogic {
       sinePhase: 0, sineFreq: 1, sineAmp: 1, sineShift: 0,
       sawX: 0, sawFreq: 1, sawShape: 'saw',
       perlinT: 0, perlinOct: 1, perlinScale: 6, perlinProbe: { x: 300, y: 210 }, perlinArrows: true,
-      vorSeeds: this.makeSeeds(), vorT: 0, vorMode: 'cells', vorCount: 12, vorProbe: { x: 420, y: 300 }
+      vorSeeds: this.makeSeeds(), vorT: 0, vorMode: 'cells', vorCount: 12, vorProbe: { x: 420, y: 300 },
+      easeT: 0, easeMode: 'inout', easePolyVar: 'quad', easeSineVar: 'sine', easeBackVar: 'back'
     };
   }
 
@@ -544,6 +584,7 @@ class Component extends DCLogic {
     if (t === 'saw') return { sawX: (s.sawX + 0.3 * k) % 4 };
     if (t === 'perlin') return { perlinT: s.perlinT + k };
     if (t === 'voronoi') return { vorT: s.vorT + k };
+    if (t.indexOf('ease') === 0) return { easeT: (s.easeT + 0.5 * k) % 1.5 };
     if (t === 'quat') return { qAngle: (s.qAngle + 45 * k) % 720 };
     return null;
   }
@@ -797,9 +838,9 @@ class Component extends DCLogic {
     for (let i = 0; i <= 10; i++) this.Dot(sc, this.toS(at(ease(i / 10)), v), i % 5 === 0 ? 4 : 2.8, '#C9D1E0');
     const dx = B.x - A.x, dy = B.y - A.y, l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l;
     this.Dot(sc, sP, 9, C.R, '#F2F4F8', 2.5);
-    this.Tx(sc, { x: sP.x + nx * 26, y: sP.y - ny * 26 + 4 }, 'P  t=' + t.toFixed(2), C.R, 13);
-    this.Tx(sc, { x: sA.x - nx * 24, y: sA.y + ny * 24 + 4 }, 'A  t=0', C.A, 13);
-    this.Tx(sc, { x: sB.x - nx * 24, y: sB.y + ny * 24 + 4 }, 'B  t=1', C.B, 13);
+    this.Tx(sc, { x: sP.x + nx * 26, y: sP.y - ny * 26 + 4 }, 'P ' + this.vs(Pt), C.R, 13);
+    this.Tx(sc, { x: sA.x - nx * 24, y: sA.y + ny * 24 + 4 }, 'A ' + this.vs(A), C.A, 13);
+    this.Tx(sc, { x: sB.x - nx * 24, y: sB.y + ny * 24 + 4 }, 'B ' + this.vs(B), C.B, 13);
     this.H(sc, sA, 'lerpA', C.A);
     this.H(sc, sB, 'lerpB', C.B);
     const c0 = [245, 184, 61], c1 = [90, 184, 245], hex = (n) => Math.round(n).toString(16).padStart(2, '0');
@@ -1153,15 +1194,99 @@ class Component extends DCLogic {
       hint: 'Drag seeds or the pink probe · seeds wander while playing', title: s.vorMode === 'cells' ? 'Voronoi cells' : (s.vorMode === 'f1' ? 'Worley noise · F1' : 'Worley noise · F2 − F1') });
   }
 
+  easeIn(name, t) {
+    if (name === 'quad') return t * t;
+    if (name === 'cubic') return t * t * t;
+    if (name === 'sine') return 1 - Math.cos(t * Math.PI / 2);
+    if (name === 'expo') return t <= 0 ? 0 : Math.pow(2, 10 * t - 10);
+    if (name === 'back') { const c1 = 1.70158; return (c1 + 1) * t * t * t - c1 * t * t; }
+    if (name === 'elastic') return t <= 0 ? 0 : (t >= 1 ? 1 : -Math.pow(2, 10 * t - 10) * Math.sin((t * 10 - 10.75) * (2 * Math.PI / 3)));
+    if (name === 'bounce') {
+      const out = (x) => { const n = 7.5625, d = 2.75; if (x < 1 / d) return n * x * x; if (x < 2 / d) { x -= 1.5 / d; return n * x * x + 0.75; } if (x < 2.5 / d) { x -= 2.25 / d; return n * x * x + 0.9375; } x -= 2.625 / d; return n * x * x + 0.984375; };
+      return 1 - out(1 - t);
+    }
+    return t;
+  }
+  ease(name, mode, t) {
+    t = Math.max(0, Math.min(1, t));
+    if (mode === 'in') return this.easeIn(name, t);
+    if (mode === 'out') return 1 - this.easeIn(name, 1 - t);
+    return t < 0.5 ? this.easeIn(name, 2 * t) / 2 : 1 - this.easeIn(name, 2 - 2 * t) / 2;
+  }
+
+  sceneEase(sc, r, topic) {
+    const s = this.state, C = this.C;
+    const fam = {
+      easePoly: { n: '01', title: 'Quad & Cubic', varKey: 'easePolyVar', vars: [['quad', 'Quad'], ['cubic', 'Cubic']],
+        h2: 'Speed up, slow down',
+        desc: 'Raise t to a power. Ease-in starts slow and speeds up, like a car pulling away; ease-out starts fast and settles; in-out does both. A higher power (cubic instead of quad) makes the effect stronger. These are the everyday workhorses of UI motion.',
+        f: { quad: 'in(t) = t²', cubic: 'in(t) = t³' } },
+      easeSine: { n: '02', title: 'Sine & Expo', varKey: 'easeSineVar', vars: [['sine', 'Sine'], ['expo', 'Expo']],
+        h2: 'Gentle and dramatic',
+        desc: 'Sine eases follow a quarter of a cosine wave: the softest of the standard curves, good for subtle motion. Expo uses 2^(10t), so it barely moves and then rushes to the end (or the reverse), which makes it the most dramatic of the standard curves.',
+        f: { sine: 'in(t) = 1 − cos(t · π/2)', expo: 'in(t) = 2^(10t − 10)' } },
+      easeBack: { n: '03', title: 'Back & Elastic', varKey: 'easeBackVar', vars: [['back', 'Back'], ['elastic', 'Elastic']],
+        h2: 'Going past the target on purpose',
+        desc: 'These curves leave the 0–1 range on purpose. Back pulls away a little before moving, or overshoots and settles back. Elastic oscillates like a spring. Watch the curve dip below 0 or rise above 1, and the ball travel past its track ends.',
+        f: { back: 'in(t) = 2.70158 t³ − 1.70158 t²', elastic: 'in(t) = −2^(10t − 10) · sin((10t − 10.75) · 2π/3)' } },
+      easeBounce: { n: '04', title: 'Bounce', varKey: null, vars: [],
+        h2: 'A ball dropped on the floor',
+        desc: 'Bounce stitches together shrinking parabolic hops, like a ball landing and settling. Bounce-out lands on the target, which is the one you usually want; bounce-in bounces away from the start; in-out does a little of each.',
+        f: { bounce: 'out(t) = piecewise parabolas\n  7.5625 t²  (then smaller hops)' } }
+    }[topic];
+    const name = fam.varKey ? s[fam.varKey] : 'bounce', mode = s.easeMode, t = Math.min(1, s.easeT);
+    const E = (x) => this.ease(name, mode, x), v = E(t);
+    const x0 = 60, x1 = 380, Y = (val) => 380 - 240 * val, X = (tt) => x0 + (x1 - x0) * tt;
+    if (fam.varKey === 'easeBackVar') this.Po(sc, [{ x: x0, y: 40 }, { x: 640, y: 40 }, { x: 640, y: Y(1) }, { x: x0, y: Y(1) }], C.R, 0.05);
+    if (fam.varKey === 'easeBackVar') this.Po(sc, [{ x: x0, y: Y(0) }, { x: 640, y: Y(0) }, { x: 640, y: 470 }, { x: x0, y: 470 }], C.R, 0.05);
+    [0, 0.25, 0.5, 0.75, 1].forEach((g) => {
+      sc.grid.push({ x1: x0, y1: Y(g), x2: x1, y2: Y(g), stroke: g === 0 || g === 1 ? C.axis : C.grid, sw: g === 0 || g === 1 ? 1.5 : 1 });
+      sc.grid.push({ x1: X(g), y1: Y(0), x2: X(g), y2: Y(1), stroke: g === 0 ? C.axis : C.grid, sw: g === 0 ? 1.5 : 1 });
+      this.Tx(sc, { x: X(g), y: Y(0) + 20 }, String(g), '#758199', 10, 'middle', 400);
+    });
+    this.Tx(sc, { x: x0 - 10, y: Y(0) + 4 }, '0', '#758199', 10, 'end', 400);
+    this.Tx(sc, { x: x0 - 10, y: Y(1) + 4 }, '1', '#758199', 10, 'end', 400);
+    this.Tx(sc, { x: x1, y: Y(0) + 40 }, 'time t →', '#A3ADBF', 11, 'end', 500);
+    this.Tx(sc, { x: x0, y: 30 }, 'value', '#A3ADBF', 11, 'start', 500);
+    this.L(sc, { x: X(0), y: Y(0) }, { x: X(1), y: Y(1) }, '#8C97AB', 1.5, 0.6, '5 6');
+    let d = '';
+    for (let i = 0; i <= 240; i++) { const tt = i / 240; d += (i ? ' L' : 'M') + this.r1(X(tt)) + ' ' + this.r1(Y(E(tt))); }
+    this.Pa(sc, d, C.R, 3.5, 1);
+    const pt = { x: X(t), y: Y(v) };
+    this.L(sc, { x: pt.x, y: Y(0) }, pt, '#E6EAF2', 1.5, 0.5, '3 5');
+    // tracks
+    const tx1 = 480, tx2 = 580;
+    [[tx1, C.R, 'eased'], [tx2, '#8C97AB', 'linear']].forEach(([tx, col, lab]) => {
+      this.L(sc, { x: tx, y: Y(0) }, { x: tx, y: Y(1) }, '#2E3748', 6, 1);
+      this.L(sc, { x: tx - 12, y: Y(0) }, { x: tx + 12, y: Y(0) }, '#4A556B', 2, 1);
+      this.L(sc, { x: tx - 12, y: Y(1) }, { x: tx + 12, y: Y(1) }, '#4A556B', 2, 1);
+      this.Tx(sc, { x: tx, y: Y(0) + 40 }, lab, col, 12, 'middle', 600);
+    });
+    this.L(sc, pt, { x: tx1, y: pt.y }, C.R, 1.5, 0.6, '4 5');
+    this.Dot(sc, pt, 7, C.R, '#F2F4F8', 2);
+    this.Dot(sc, { x: tx1, y: pt.y }, 13, C.R, '#F2F4F8', 2.5);
+    this.Dot(sc, { x: tx2, y: Y(t) }, 13, '#8C97AB', '#F2F4F8', 2.5);
+    const h = 0.002, sp = (E(Math.min(1, t + h)) - E(Math.max(0, t - h))) / (Math.min(1, t + h) - Math.max(0, t - h));
+    let lo = 0, hi = 1; for (let i = 0; i <= 200; i++) { const e = E(i / 200); lo = Math.min(lo, e); hi = Math.max(hi, e); }
+    const modeName = { in: 'In', out: 'Out', inout: 'InOut' }[mode], vname = name.charAt(0).toUpperCase() + name.slice(1), fname = 'ease' + modeName + vname;
+    const modeLine = mode === 'in' ? 'y = in(t)' : (mode === 'out' ? 'y = out(t) = 1 − in(1 − t)' : 'y = t < ½ ? in(2t) / 2\n         : 1 − in(2 − 2t) / 2');
+    Object.assign(r, { eyebrow: 'Easing · ' + fam.n + ' · ' + fam.title, h2: fam.h2, desc: fam.desc, formula: (name === 'bounce' ? fam.f.bounce + '\nin(t) = 1 − out(1 − t)' : fam.f[name]) + '\n' + modeLine,
+      hasVar: !!fam.varKey, vars: fam.varKey ? this.pills(fam.vars, name, fam.varKey) : [], modes: this.pills([['in', 'Ease in'], ['out', 'Ease out'], ['inout', 'Ease in-out']], mode, 'easeMode'),
+      t: t.toFixed(2), tVal: t, v: v.toFixed(3), fname, speed: sp.toFixed(2) + '×', leaves: lo < -0.001 || hi > 1.001 ? 'yes: ' + lo.toFixed(2) + ' … ' + hi.toFixed(2) : 'no',
+      hint: 'Pick a direction · the balls replay the motion', title: fname + '(t)' });
+  }
+
   renderVals() {
     const s = this.state, topic = this.topicOf(), sc = this.sc(), r = {};
     const map = { dir: 'sceneDir', norm: 'sceneNorm', dot: 'sceneDot', cross: 'sceneCross', lerp: 'sceneLerp', slerp: 'sceneSlerp', inv: 'sceneInv', gimbal: 'sceneGimbal', quat: 'sceneQuat', sine: 'sceneSine', saw: 'sceneSaw', perlin: 'scenePerlin', voronoi: 'sceneVoronoi' };
-    this[map[topic] || 'sceneDir'](sc, r);
+    const isEase = topic.indexOf('ease') === 0;
+    if (isEase) this.sceneEase(sc, r, topic); else this[map[topic] || 'sceneDir'](sc, r);
     const topics = [['dir', '01', 'Directions', 'vec'], ['norm', '02', 'Normalize', 'vec'], ['dot', '03', 'Dot product', 'vec'], ['cross', '04', 'Cross product', 'vec'], ['lerp', '05', 'Lerp', 'vec'], ['inv', '06', 'Inverse lerp', 'vec'],
       ['quat', '01', 'Quaternions', 'rot'], ['gimbal', '02', 'Gimbal lock', 'rot'], ['slerp', '03', 'Slerp', 'rot'],
-      ['sine', '01', 'Sine & cosine', 'wave'], ['saw', '02', 'Sawtooth', 'wave'], ['perlin', '03', 'Perlin noise', 'wave'], ['voronoi', '04', 'Voronoi', 'wave']];
+      ['sine', '01', 'Sine & cosine', 'wave'], ['saw', '02', 'Sawtooth', 'wave'], ['perlin', '03', 'Perlin noise', 'wave'], ['voronoi', '04', 'Voronoi', 'wave'],
+      ['easePoly', '01', 'Quad & Cubic', 'ease'], ['easeSine', '02', 'Sine & Expo', 'ease'], ['easeBack', '03', 'Back & Elastic', 'ease'], ['easeBounce', '04', 'Bounce', 'ease']];
     const catOf = (id) => (topics.find((x) => x[0] === id) || topics[0])[3], cat = catOf(topic), last = s.lastByCat || {};
-    const cats = [['vec', 'Vectors'], ['rot', 'Rotations'], ['wave', 'Waves & Noise']].map(([id, label]) => {
+    const cats = [['vec', 'Vectors'], ['rot', 'Rotations'], ['wave', 'Waves & Noise'], ['ease', 'Easing']].map(([id, label]) => {
       const on = id === cat, first = topics.find((x) => x[3] === id)[0];
       return { id, label, pressed: on, count: String(topics.filter((x) => x[3] === id).length), bg: on ? '#E6EAF2' : 'transparent', fg: on ? '#0E1117' : '#C9D1E0',
         pick: () => { if (!on) this.setState({ topic: last[id] || first, drag: null, lastByCat: { ...last, [cat]: topic } }); } };
@@ -1174,7 +1299,7 @@ class Component extends DCLogic {
     const numPause = (key) => (e) => this.setState({ [key]: parseFloat(e.target.value), playing: false });
     const setZ = (key) => (e) => { const v = this.state[key], hd = Math.atan2(v[1], v[0]), el = parseFloat(e.target.value) * Math.PI / 180; this.setState({ [key]: [Math.cos(el) * Math.cos(hd), Math.cos(el) * Math.sin(hd), Math.sin(el)] }); };
     const gLocked = Math.abs(Math.cos(s.gPitch * Math.PI / 180)) < 0.035;
-    const is = {}; topics.forEach(([id]) => { is[id] = id === topic; });
+    const is = {}; topics.forEach(([id]) => { is[id] = id === topic; }); is.ease = isEase;
     return {
       tabs, cats, is, r, scene: sc,
       stageTitle: r.title, hint: r.hint,
@@ -1187,7 +1312,7 @@ class Component extends DCLogic {
       toggleArrows: () => this.setState({ perlinArrows: !s.perlinArrows }),
       toggleLock: () => this.setState({ gPitch: gLocked ? 20 : 90 }),
       set: { crossAz: setZ('crossA'), crossBz: setZ('crossB'), crossYaw: (e) => this.setState({ crossYaw: parseFloat(e.target.value) * Math.PI / 180 }),
-        gYaw: num('gYaw'), sineFreq: num('sineFreq'), sineAmp: num('sineAmp'), sineShift: num('sineShift'), sawFreq: num('sawFreq'), perlinOct: num('perlinOct'), perlinScale: num('perlinScale'), vorCount: num('vorCount'), gPitch: num('gPitch'), gRoll: numPause('gRoll'), lerpT: numPause('lerpT'), slerpT: numPause('slerpT'), invT: numPause('invT'), qAngle: numPause('qAngle'), qYaw: num('qYaw'), qPitch: num('qPitch') }
+        gYaw: num('gYaw'), sineFreq: num('sineFreq'), sineAmp: num('sineAmp'), sineShift: num('sineShift'), sawFreq: num('sawFreq'), perlinOct: num('perlinOct'), perlinScale: num('perlinScale'), vorCount: num('vorCount'), easeT: numPause('easeT'), gPitch: num('gPitch'), gRoll: numPause('gRoll'), lerpT: numPause('lerpT'), slerpT: numPause('slerpT'), invT: numPause('invT'), qAngle: numPause('qAngle'), qYaw: num('qYaw'), qPitch: num('qPitch') }
     };
   }
 }
