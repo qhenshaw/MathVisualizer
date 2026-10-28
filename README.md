@@ -32,7 +32,7 @@ An interactive, animated explainer for the math behind games, shaders and animat
 | 02 | Linear & angular drag | A sliding puck and a spinning wheel decaying exponentially |
 | 03 | Springs | Drag a mass on a damped spring; stiffness, damping, mass and ζ |
 | | **Shader** | |
-| 01 | Normals & normal maps | Mesh vertex vs face normals in side view, and a normal map decoded texel by texel |
+| 01 | Normals & normal maps | Face normals vs normal-map-perturbed normals on a low-poly cross-section, plus the map decoded texel by texel |
 | 02 | Fresnel effect | Rim glow on a sphere from n · V, with Schlick and power curves |
 
 ## Embedding
