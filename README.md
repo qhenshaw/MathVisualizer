@@ -1,6 +1,6 @@
 # Math Visualizer
 
-An interactive, animated explainer for the math behind games, shaders and animation rigs: vectors, rotations, waves, noise, easing, physics and textures.
+An interactive, animated explainer for the math behind games, shaders and animation rigs: vectors, rotations, waves, noise, easing, physics and shaders.
 
 **Live:** https://qhenshaw.github.io/MathVisualizer/
 
@@ -31,8 +31,9 @@ An interactive, animated explainer for the math behind games, shaders and animat
 | 01 | Acceleration & impulse | Constant force vs instant kicks on a cart, with a live velocity graph |
 | 02 | Linear & angular drag | A sliding puck and a spinning wheel decaying exponentially |
 | 03 | Springs | Drag a mass on a damped spring; stiffness, damping, mass and ζ |
-| | **Texture** | |
+| | **Shader** | |
 | 01 | Normals & normal maps | Mesh vertex vs face normals in side view, and a normal map decoded texel by texel |
+| 02 | Fresnel effect | Rim glow on a sphere from n · V, with Schlick and power curves |
 
 ## Embedding
 
@@ -43,7 +44,7 @@ An interactive, animated explainer for the math behind games, shaders and animat
 
 URL options:
 
-- `?topic=dot` opens on a tab, and its category (`dir`, `norm`, `dot`, `cross`, `lerp`, `inv`, `quat`, `gimbal`, `slerp`, `sine`, `saw`, `perlin`, `voronoi`, `easePoly`, `easeSine`, `easeBack`, `easeBounce`, `physAccel`, `physDrag`, `physSpring`, `normals`)
+- `?topic=dot` opens on a tab, and its category (`dir`, `norm`, `dot`, `cross`, `lerp`, `inv`, `quat`, `gimbal`, `slerp`, `sine`, `saw`, `perlin`, `voronoi`, `easePoly`, `easeSine`, `easeBack`, `easeBounce`, `physAccel`, `physDrag`, `physSpring`, `normals`, `fresnel`)
 - `?speed=0.5` changes the animation speed
 - `?grid=0` hides the background grid
 

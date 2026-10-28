@@ -23,7 +23,7 @@ button:focus-visible{outline:2px solid #F06FB0;outline-offset:2px}
 
 <header style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px">
 <div style="display: flex; flex-direction: column; gap: 8px; max-width: 760px">
-<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #F06FB0">Interactive primer · vectors, rotations, waves, easing, physics &amp; textures</p>
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #F06FB0">Interactive primer · vectors, rotations, waves, easing, physics &amp; shaders</p>
 <h1 style="margin: 0; font-size: 44px; line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; color: #F2F4F8">Math Visualizer</h1>
 <p style="margin: 0; font-size: 16px; line-height: 1.5; color: #B4BDCC">The math behind every game engine, shader and animation rig. Drag the handles, scrub the sliders, and watch the numbers follow.</p>
 </div>
@@ -594,7 +594,7 @@ a = F / m
 <sc-if value="{{is.normals}}" hint-placeholder-val="{{false}}">
 <div style="display: flex; flex-direction: column; gap: 18px">
 <div style="display: flex; flex-direction: column; gap: 8px">
-<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Texture · 01 · Normals &amp; normal maps</p>
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Shader · 01 · Normals &amp; normal maps</p>
 <h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Which way does the surface face?</h2>
 <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">A normal is a unit vector pointing straight out of a surface, and basic lighting is just the dot product of the normal with the light direction. In a mesh, each vertex stores a normal averaged from the faces around it, and shading blends between them so a few flat faces look smoothly curved. Switch to face normals to see the facets. A normal map stores a normal for every texel, packed into RGB, so a perfectly flat polygon can be lit as if it had bumps. Drag the light (top) and the probe (bottom left).</p>
 </div>
@@ -623,12 +623,42 @@ read:   n = RGB · 2 − 1</div>
 <p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> lighting every 3D model; normal maps add bricks, scratches, pores and fabric weave without extra polygons. This map uses the OpenGL convention (green = up); DirectX-style maps flip the green channel.</p>
 </div>
 </sc-if>
+<sc-if value="{{is.fresnel}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Shader · 02 · Fresnel effect</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Surfaces reflect more at grazing angles</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Look straight down into a lake and you see the bottom; look across it and it turns into a mirror. That is the Fresnel effect: reflection gets stronger as the surface turns away from you. A shader measures this with the dot product of the surface normal n and the direction to the camera V. Facing you, n · V = 1 and the effect is near zero; at the silhouette, n · V = 0 and it reaches full strength, which is why the sphere’s rim glows. The side view (top right) shows one point and its angle; the dashed ring on the sphere is every point at that same angle.</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">{{r.formula}}</div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div role="group" aria-label="Fresnel formula" style="display: flex; gap: 8px; flex-wrap: wrap">
+<sc-for list="{{r.modes}}" as="b" hint-placeholder-count="2">
+<button type="button" onClick="{{b.pick}}" aria-pressed="{{b.on}}" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid {{b.bd}}; background: {{b.bg}}; color: {{b.fg}}; font-size: 14px; font-weight: 600; cursor: pointer">{{b.label}}</button>
+</sc-for>
+</div>
+<sc-if value="{{r.schlick}}" hint-placeholder-val="{{false}}">
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Base reflectivity F0 (head-on)</span><span style="font-family: 'JetBrains Mono', monospace; color: #5AB8F5">{{r.F0}}</span></span><input type="range" min="0" max="1" step="0.01" value="{{r.F0Val}}" onChange="{{set.frF0}}"></label>
+</sc-if>
+<sc-if value="{{r.power}}" hint-placeholder-val="{{true}}">
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Power p (rim sharpness)</span><span style="font-family: 'JetBrains Mono', monospace; color: #5AB8F5">{{r.p}}</span></span><input type="range" min="0.5" max="8" step="0.1" value="{{r.pVal}}" onChange="{{set.frPow}}"></label>
+</sc-if>
+</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Angle θ between n and V</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.theta}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">n · V = cos θ</span><span style="font-family: 'JetBrains Mono', monospace; color: #5EE0A8; text-align: right">{{r.ndv}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">1 − n · V</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.inv}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">Fresnel F</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0; text-align: right; font-weight: 600">{{r.F}}</span></div>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> rim lighting on characters, water, glass and car paint that reflect more at the edges, force-field and shield bubbles, holograms and x-ray outlines. F0 is about 0.04 for water, glass and plastic, and much higher for metals.</p>
+</div>
+</sc-if>
 </aside>
 </div>
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"speed":{"editor":"range","min":0.25,"max":2,"step":0.25,"default":1,"section":"Motion"},"showGrid":{"editor":"boolean","default":true,"section":"Stage"},"startTopic":{"editor":"enum","options":["dir","norm","dot","cross","lerp","inv","quat","gimbal","slerp","sine","saw","perlin","voronoi","easePoly","easeSine","easeBack","easeBounce","physAccel","physDrag","physSpring","normals"],"default":"dir","section":"Stage"},"$preview":{"width":1440,"height":1000}}'>
+<script type="text/x-dc" data-dc-script data-props='{"speed":{"editor":"range","min":0.25,"max":2,"step":0.25,"default":1,"section":"Motion"},"showGrid":{"editor":"boolean","default":true,"section":"Stage"},"startTopic":{"editor":"enum","options":["dir","norm","dot","cross","lerp","inv","quat","gimbal","slerp","sine","saw","perlin","voronoi","easePoly","easeSine","easeBack","easeBounce","physAccel","physDrag","physSpring","normals","fresnel"],"default":"dir","section":"Stage"},"$preview":{"width":1440,"height":1000}}'>
 class Component extends DCLogic {
   C = { A: '#F5B83D', B: '#5AB8F5', R: '#F06FB0', U: '#5EE0A8', muted: '#8C97AB', faint: '#4A556B', text: '#E6EAF2', axis: '#3A4558', grid: '#181F2C' };
 
@@ -654,7 +684,8 @@ class Component extends DCLogic {
       physT: 0, paX: 2, paV: 0, paF: 1.5, paM: 1, paJ: 4, paHist: [],
       dX: 2, dV: 8, dK: 0.6, dAng: 0, dOm: 9, dKa: 0.4, dHist: [],
       spY: 1.6, spV: 0, spK: 20, spC: 1, spM: 1, spIdle: 0, spHist: [],
-      nmPhase: 0, nmMode: 'smooth', nmVerts: 10, nmAmp: 1, nmStr: 1, nmLight: { x: 470, y: 40 }, nmProbe: { x: 128, y: 340 }
+      nmPhase: 0, nmMode: 'smooth', nmVerts: 10, nmAmp: 1, nmStr: 1, nmLight: { x: 470, y: 40 }, nmProbe: { x: 128, y: 340 },
+      frPhi: 0.9, frDir: 1, frMode: 'power', frF0: 0.04, frPow: 2
     };
   }
 
@@ -727,6 +758,7 @@ class Component extends DCLogic {
       if (idle > 1.2) { y = 1.6; v = 0; idle = 0; }
       return { spY: y, spV: v, spIdle: idle, physT: now, spHist: this.pushHist(s.spHist, [{ t: now, y }], now, 7) };
     }
+    if (t === 'fresnel') { const b = this.bounce(s.frPhi, s.frDir, 0.6 * k, -1.48, 1.48); return { frPhi: b[0], frDir: b[1] }; }
     if (t === 'normals') return { nmPhase: s.nmPhase + 0.5 * k };
     if (t.indexOf('ease') === 0) return { easeT: (s.easeT + 0.5 * k) % 1.5 };
     if (t === 'quat') return { qAngle: (s.qAngle + 45 * k) % 720 };
@@ -761,6 +793,7 @@ class Component extends DCLogic {
       this.setState({ [key]: [Math.cos(el) * Math.cos(hd), Math.cos(el) * Math.sin(hd), Math.sin(el)] });
       return;
     }
+    if (key === 'frProbe') { this.setState({ frPhi: Math.max(-1.52, Math.min(1.52, Math.atan2(-(sy - 140), -(sx - 540)))) }); return; }
     if (key === 'nmLight') { this.setState({ nmLight: { x: Math.max(20, Math.min(620, sx)), y: Math.max(14, Math.min(110, sy)) } }); return; }
     if (key === 'nmProbe') { this.setState({ nmProbe: { x: Math.max(21, Math.min(307, sx)), y: Math.max(251, Math.min(449, sy)) } }); return; }
     if (key === 'spMass') { this.setState({ spY: Math.max(-3, Math.min(3, (sy - 230) / 60)), spV: 0, spIdle: 0 }); return; }
@@ -1447,7 +1480,7 @@ class Component extends DCLogic {
     this.Po(sc, [{ x: x0, y: y0 }, { x: x1, y: y0 }, { x: x1, y: y1 }, { x: x0, y: y1 }], '#0E131D', 1, '#232B3A', 1);
     if (zeroY != null) sc.lines.push({ x1: x0, y1: zeroY, x2: x1, y2: zeroY, stroke: '#3A4558', sw: 1.5, op: 1, dash: 'none' });
     this.Tx(sc, { x: x0 + 10, y: y0 + 18 }, label, '#A3ADBF', 11, 'start', 500);
-    this.Tx(sc, { x: x1 - 8, y: y1 - 8 }, 'now', '#758199', 10, 'end', 400);
+    if (label) this.Tx(sc, { x: x1 - 8, y: y1 - 8 }, 'now', '#758199', 10, 'end', 400);
   }
   applyImpulse(dir) {
     const s = this.state, nv = Math.max(-15, Math.min(15, s.paV + dir * s.paJ / s.paM));
@@ -1600,20 +1633,73 @@ class Component extends DCLogic {
       hint: 'Drag the light and the probe', title: smooth ? 'n · L with interpolated vertex normals' : 'n · L with flat face normals' });
   }
 
+  sceneFresnel(sc, r) {
+    const s = this.state, C = this.C, schlick = s.frMode === 'schlick';
+    const F = (c) => { c = Math.max(0, Math.min(1, c)); return schlick ? s.frF0 + (1 - s.frF0) * Math.pow(1 - c, 5) : Math.pow(1 - c, s.frPow); };
+    // ---- sphere, head-on ----
+    const sc0 = { x: 175, y: 240 }, R = 150, step = 5, L = this.norm3([-0.45, 0.55, 0.7]);
+    for (let y = sc0.y - R; y < sc0.y + R; y += step) for (let x = sc0.x - R; x < sc0.x + R; x += step) {
+      const nx = (x + step / 2 - sc0.x) / R, ny = -(y + step / 2 - sc0.y) / R, d2 = nx * nx + ny * ny;
+      if (d2 > 1) continue;
+      const nz = Math.sqrt(1 - d2), f = F(nz), dif = 0.28 + 0.6 * Math.max(0, nx * L[0] + ny * L[1] + nz * L[2]);
+      const base = [44 * dif * 2.2, 78 * dif * 2.2, 120 * dif * 2.2], rim = [240, 111, 176];
+      sc.cells.push({ x, y, w: step + 0.5, h: step + 0.5, fill: 'rgb(' + base.map((b, i) => Math.round(Math.min(255, b + (rim[i] - b) * f))).join(',') + ')' });
+    }
+    const th = Math.abs(s.frPhi), cth = Math.cos(th);
+    this.Ring(sc, sc0, R * Math.sin(th), '#F2F4F8', 1.5, '5 5', 0.85);
+    this.Tx(sc, { x: 20, y: 30 }, 'SPHERE · color = lerp(base, rim, F)', '#A3ADBF', 11, 'start', 500);
+    this.Tx(sc, { x: sc0.x, y: sc0.y + R + 26 }, 'dashed ring: all points at θ = ' + (th * 180 / Math.PI).toFixed(0) + '°', '#C9D1E0', 11, 'middle', 500);
+    // ---- side view ----
+    const c = { x: 540, y: 140 }, cr = 72, eyeX = 360;
+    this.Tx(sc, { x: 352, y: 20 }, 'SIDE VIEW · camera on the left', '#A3ADBF', 11, 'start', 500);
+    this.Ring(sc, c, cr, '#5B667C', 2);
+    this.Pa(sc, this.arc(c, cr, Math.PI / 2, Math.PI * 1.5), '#C9D1E0', 3, 1);
+    this.Po(sc, [{ x: eyeX - 14, y: c.y - 10 }, { x: eyeX + 4, y: c.y - 10 }, { x: eyeX + 4, y: c.y + 10 }, { x: eyeX - 14, y: c.y + 10 }], '#C9D1E0', 1);
+    this.Po(sc, [{ x: eyeX + 4, y: c.y - 6 }, { x: eyeX + 14, y: c.y - 12 }, { x: eyeX + 14, y: c.y + 12 }, { x: eyeX + 4, y: c.y + 6 }], '#C9D1E0', 1);
+    this.Tx(sc, { x: eyeX, y: c.y + 30 }, 'camera', '#A3ADBF', 11, 'middle', 500);
+    const phi = s.frPhi, pt = { x: c.x - cr * Math.cos(phi), y: c.y - cr * Math.sin(phi) }, nn = { x: -Math.cos(phi), y: -Math.sin(phi) };
+    this.L(sc, { x: eyeX + 16, y: pt.y }, pt, C.A, 1.5, 0.55, '4 5');
+    this.Ar(sc, pt, { x: pt.x - 58, y: pt.y }, C.A, 3);
+    this.Ar(sc, pt, { x: pt.x + nn.x * 58, y: pt.y + nn.y * 58 }, C.U, 3);
+    if (th > 0.05) { const a0 = Math.PI, a1 = Math.PI - phi; this.Pa(sc, 'M' + this.r1(pt.x + 26 * Math.cos(a0)) + ' ' + this.r1(pt.y - 26 * Math.sin(a0)) + ' A26 26 0 0 ' + (phi > 0 ? 1 : 0) + ' ' + this.r1(pt.x + 26 * Math.cos(a1)) + ' ' + this.r1(pt.y - 26 * Math.sin(a1)), '#F2F4F8', 1.5, 0.9); }
+    this.Tx(sc, { x: pt.x - 64, y: pt.y - 8 }, 'V', C.A, 13, 'end');
+    this.Tx(sc, { x: pt.x + nn.x * 74, y: pt.y + nn.y * 74 + 4 }, 'n', C.U, 13);
+    this.H(sc, pt, 'frProbe', C.R);
+    this.Tx(sc, { x: 625, y: 250 }, 'F = ' + F(cth).toFixed(2), C.R, 14, 'end');
+    // ---- graph ----
+    const gx0 = 380, gx1 = 615, gy0 = 290, gy1 = 450, X = (deg) => gx0 + (gx1 - gx0) * deg / 90, Y = (v) => gy1 - (gy1 - gy0) * v;
+    this.graphFrame(sc, gx0, gx1, gy0, gy1, '', null);
+    [0, 30, 60, 90].forEach((d) => { sc.lines.push({ x1: X(d), y1: gy0, x2: X(d), y2: gy1, stroke: '#1B2230', sw: 1, op: 1, dash: 'none' }); this.Tx(sc, { x: X(d), y: gy1 + 16 }, d + '°', '#758199', 10, 'middle', 400); });
+    this.Tx(sc, { x: gx0 - 6, y: Y(0) + 4 }, '0', '#758199', 10, 'end', 400);
+    this.Tx(sc, { x: gx0 - 6, y: Y(1) + 4 }, '1', '#758199', 10, 'end', 400);
+    this.Tx(sc, { x: gx0 + 8, y: gy0 + 16 }, 'F vs angle θ', '#A3ADBF', 11, 'start', 500);
+    let d = '';
+    for (let i = 0; i <= 90; i++) d += (i ? ' L' : 'M') + this.r1(X(i)) + ' ' + this.r1(Y(F(Math.cos(i * Math.PI / 180))));
+    this.Pa(sc, d, C.R, 3, 1);
+    const md = th * 180 / Math.PI;
+    sc.lines.push({ x1: this.r1(X(md)), y1: gy0, x2: this.r1(X(md)), y2: gy1, stroke: '#F2F4F8', sw: 1, op: 0.5, dash: '3 4' });
+    this.Dot(sc, { x: X(md), y: Y(F(cth)) }, 6, C.R, '#F2F4F8', 2);
+    Object.assign(r, { modes: this.pills([['power', 'Power (artist rim)'], ['schlick', 'Schlick (physical)']], s.frMode, 'frMode'), schlick, power: !schlick,
+      formula: schlick ? 'F = F0 + (1 − F0) · (1 − n · V)⁵\ncolor = lerp(base, reflection, F)' : 'F = (1 − n · V)^p\ncolor = lerp(base, rim, F)',
+      F0: s.frF0.toFixed(2), F0Val: s.frF0, p: s.frPow.toFixed(1), pVal: s.frPow,
+      theta: md.toFixed(0) + '°', ndv: cth.toFixed(2), inv: (1 - cth).toFixed(2), F: F(cth).toFixed(3),
+      hint: 'Drag the point on the side view', title: schlick ? 'Schlick Fresnel · F0 = ' + s.frF0.toFixed(2) : 'Power Fresnel · p = ' + s.frPow.toFixed(1) });
+  }
+
   renderVals() {
     const s = this.state, topic = this.topicOf(), sc = this.sc(), r = {};
     const map = { dir: 'sceneDir', norm: 'sceneNorm', dot: 'sceneDot', cross: 'sceneCross', lerp: 'sceneLerp', slerp: 'sceneSlerp', inv: 'sceneInv', gimbal: 'sceneGimbal', quat: 'sceneQuat', sine: 'sceneSine', saw: 'sceneSaw', perlin: 'scenePerlin', voronoi: 'sceneVoronoi' };
     const isEase = topic.indexOf('ease') === 0;
-    map.normals = 'sceneNormals'; map.physAccel = 'scenePhysAccel'; map.physDrag = 'scenePhysDrag'; map.physSpring = 'scenePhysSpring';
+    map.normals = 'sceneNormals'; map.fresnel = 'sceneFresnel'; map.physAccel = 'scenePhysAccel'; map.physDrag = 'scenePhysDrag'; map.physSpring = 'scenePhysSpring';
     if (isEase) this.sceneEase(sc, r, topic); else this[map[topic] || 'sceneDir'](sc, r);
     const topics = [['dir', '01', 'Directions', 'vec'], ['norm', '02', 'Normalize', 'vec'], ['dot', '03', 'Dot product', 'vec'], ['cross', '04', 'Cross product', 'vec'], ['lerp', '05', 'Lerp', 'vec'], ['inv', '06', 'Inverse lerp', 'vec'],
       ['quat', '01', 'Quaternions', 'rot'], ['gimbal', '02', 'Gimbal lock', 'rot'], ['slerp', '03', 'Slerp', 'rot'],
       ['sine', '01', 'Sine & cosine', 'wave'], ['saw', '02', 'Sawtooth', 'wave'], ['perlin', '03', 'Perlin noise', 'wave'], ['voronoi', '04', 'Voronoi', 'wave'],
       ['easePoly', '01', 'Quad & Cubic', 'ease'], ['easeSine', '02', 'Sine & Expo', 'ease'], ['easeBack', '03', 'Back & Elastic', 'ease'], ['easeBounce', '04', 'Bounce', 'ease'],
       ['physAccel', '01', 'Acceleration & impulse', 'phys'], ['physDrag', '02', 'Linear & angular drag', 'phys'], ['physSpring', '03', 'Springs', 'phys'],
-      ['normals', '01', 'Normals & normal maps', 'tex']];
+      ['normals', '01', 'Normals & normal maps', 'tex'], ['fresnel', '02', 'Fresnel effect', 'tex']];
     const catOf = (id) => (topics.find((x) => x[0] === id) || topics[0])[3], cat = catOf(topic), last = s.lastByCat || {};
-    const cats = [['vec', 'Vectors'], ['rot', 'Rotations'], ['wave', 'Waves & Noise'], ['ease', 'Easing'], ['phys', 'Physics'], ['tex', 'Texture']].map(([id, label]) => {
+    const cats = [['vec', 'Vectors'], ['rot', 'Rotations'], ['wave', 'Waves & Noise'], ['ease', 'Easing'], ['phys', 'Physics'], ['tex', 'Shader']].map(([id, label]) => {
       const on = id === cat, first = topics.find((x) => x[3] === id)[0];
       return { id, label, pressed: on, count: String(topics.filter((x) => x[3] === id).length), bg: on ? '#E6EAF2' : 'transparent', fg: on ? '#0E1117' : '#C9D1E0',
         pick: () => { if (!on) this.setState({ topic: last[id] || first, drag: null, lastByCat: { ...last, [cat]: topic } }); } };
@@ -1642,7 +1728,7 @@ class Component extends DCLogic {
       toggleArrows: () => this.setState({ perlinArrows: !s.perlinArrows }),
       toggleLock: () => this.setState({ gPitch: gLocked ? 20 : 90 }),
       set: { crossAz: setZ('crossA'), crossBz: setZ('crossB'), crossYaw: (e) => this.setState({ crossYaw: parseFloat(e.target.value) * Math.PI / 180 }),
-        gYaw: num('gYaw'), sineFreq: num('sineFreq'), sineAmp: num('sineAmp'), sineShift: num('sineShift'), sawFreq: num('sawFreq'), perlinOct: num('perlinOct'), perlinScale: num('perlinScale'), vorCount: num('vorCount'), easeT: numPause('easeT'), nmVerts: num('nmVerts'), nmAmp: num('nmAmp'), nmStr: num('nmStr'), easeStart: (e) => this.setState({ easeStart: e.target.value }), easeEnd: (e) => this.setState({ easeEnd: e.target.value }), paF: num('paF'), paM: num('paM'), paJ: num('paJ'), dK: num('dK'), dKa: num('dKa'), spK: num('spK'), spC: num('spC'), spM: num('spM'), gPitch: num('gPitch'), gRoll: numPause('gRoll'), lerpT: numPause('lerpT'), slerpT: numPause('slerpT'), invT: numPause('invT'), qAngle: numPause('qAngle'), qYaw: num('qYaw'), qPitch: num('qPitch') }
+        gYaw: num('gYaw'), sineFreq: num('sineFreq'), sineAmp: num('sineAmp'), sineShift: num('sineShift'), sawFreq: num('sawFreq'), perlinOct: num('perlinOct'), perlinScale: num('perlinScale'), vorCount: num('vorCount'), easeT: numPause('easeT'), nmVerts: num('nmVerts'), nmAmp: num('nmAmp'), nmStr: num('nmStr'), frF0: num('frF0'), frPow: num('frPow'), easeStart: (e) => this.setState({ easeStart: e.target.value }), easeEnd: (e) => this.setState({ easeEnd: e.target.value }), paF: num('paF'), paM: num('paM'), paJ: num('paJ'), dK: num('dK'), dKa: num('dKa'), spK: num('spK'), spC: num('spC'), spM: num('spM'), gPitch: num('gPitch'), gRoll: numPause('gRoll'), lerpT: numPause('lerpT'), slerpT: numPause('slerpT'), invT: numPause('invT'), qAngle: numPause('qAngle'), qYaw: num('qYaw'), qPitch: num('qPitch') }
     };
   }
 }
