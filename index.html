@@ -71,6 +71,7 @@ button:focus-visible{outline:2px solid #F06FB0;outline-offset:2px}
 <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #E6EAF2">{{stageTitle}}</span>
 <span style="font-size: 13px; color: #A3ADBF">{{hint}}</span>
 </div>
+<div style="position: relative">
 <svg viewBox="0 0 640 480" role="img" aria-label="{{stageTitle}}" onPointerMove="{{onMove}}" onPointerUp="{{onUp}}" onPointerCancel="{{onUp}}" style="width: 100%; height: auto; display: block; touch-action: none; border-radius: 10px; font-family: 'JetBrains Mono', monospace; user-select: none">
 <rect x="0" y="0" width="640" height="480" fill="#0B0F16"></rect>
 <sc-for list="{{scene.cells}}" as="q" hint-placeholder-count="0"><rect x="{{q.x}}" y="{{q.y}}" width="{{q.w}}" height="{{q.h}}" fill="{{q.fill}}"></rect></sc-for>
@@ -84,6 +85,14 @@ button:focus-visible{outline:2px solid #F06FB0;outline-offset:2px}
 <sc-for list="{{scene.labels}}" as="t" hint-placeholder-count="0"><text x="{{t.x}}" y="{{t.y}}" fill="{{t.fill}}" font-size="{{t.size}}" font-weight="{{t.weight}}" text-anchor="{{t.anchor}}" stroke="#0B0F16" stroke-width="4" stroke-linejoin="round" paint-order="stroke">{{t.text}}</text></sc-for>
 <sc-for list="{{scene.handles}}" as="h" hint-placeholder-count="0"><g onPointerDown="{{h.down}}" style="cursor: grab"><circle cx="{{h.cx}}" cy="{{h.cy}}" r="22" fill="#FFFFFF" fill-opacity="0.001"></circle><circle cx="{{h.cx}}" cy="{{h.cy}}" r="14" fill="{{h.fill}}" fill-opacity="0.18"></circle><circle cx="{{h.cx}}" cy="{{h.cy}}" r="7" fill="{{h.fill}}" stroke="#0B0F16" stroke-width="2.5"></circle></g></sc-for>
 </svg>
+<sc-if value="{{is.cross}}" hint-placeholder-val="{{false}}">
+<div role="group" aria-label="Coordinate system handedness" style="position: absolute; top: 10px; left: 10px; display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(19,24,36,0.92); border: 1px solid #2E3748">
+<sc-for list="{{r.hands}}" as="b" hint-placeholder-count="2">
+<button type="button" onClick="{{b.pick}}" aria-pressed="{{b.on}}" style="min-height: 44px; padding: 0 14px; border-radius: 9px; border: 0; background: {{b.bg}}; color: {{b.fg}}; font-size: 14px; font-weight: 600; cursor: pointer">{{b.label}}</button>
+</sc-for>
+</div>
+</sc-if>
+</div>
 <sc-if value="{{is.dot}}" hint-placeholder-val="{{false}}">
 <svg viewBox="0 0 640 76" role="img" aria-label="Dot product result on a scale from minus 1 to 1" style="width: 100%; height: auto; display: block; font-family: 'JetBrains Mono', monospace">
 <rect x="0" y="0" width="640" height="76" rx="10" fill="#0B0F16"></rect>
@@ -217,7 +226,7 @@ proj = (A · B) A</div>
 <div style="display: flex; flex-direction: column; gap: 8px">
 <p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Vectors · 04 · Cross product</p>
 <h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">A new vector, perpendicular to both</h2>
-<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">In 3D, A × B points straight out of the plane that A and B span, following the right-hand rule. Its length equals the area of the parallelogram they make, so it shrinks to zero when A and B line up. Order matters: B × A flips it. With unit vectors A and B, the length is simply sin θ.</p>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">In 3D, A × B points straight out of the plane that A and B span, following the hand rule of your coordinate system. Its length equals the area of the parallelogram they make, so it shrinks to zero when A and B line up. Order matters: B × A flips it. With unit vectors A and B, the length is simply sin θ. Use the switch on the graph to flip between a left-handed system (Unity, Unreal, DirectX) and a right-handed one (OpenGL, Blender, Godot): the numbers are identical, but the y axis is drawn the other way, so A × B points out of the other side of the plane.</p>
 </div>
 <div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">A × B = (AyBz − AzBy,
          AzBx − AxBz,
@@ -229,7 +238,6 @@ proj = (A · B) A</div>
 <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Elevation of A</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D">{{r.az}}</span></span><input type="range" min="-80" max="80" step="1" value="{{r.azVal}}" onChange="{{set.crossAz}}"></label>
 <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Elevation of B</span><span style="font-family: 'JetBrains Mono', monospace; color: #5AB8F5">{{r.bz}}</span></span><input type="range" min="-80" max="80" step="1" value="{{r.bzVal}}" onChange="{{set.crossBz}}"></label>
 <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>View angle</span><span style="font-family: 'JetBrains Mono', monospace; color: #E6EAF2">{{r.yawIn}}</span></span><input type="range" min="-180" max="180" step="1" value="{{r.yawVal}}" onChange="{{set.crossYaw}}"></label>
-<button type="button" onClick="{{swapCross}}" style="align-self: flex-start; min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #2E3748; background: #1A2030; color: #E6EAF2; font-size: 14px; font-weight: 600; cursor: pointer">Swap order → {{r.swapTo}}</button>
 </div>
 <div style="display: flex; flex-direction: column">
 <div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">A</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D">{{r.A}}</span></div>
@@ -508,7 +516,7 @@ class Component extends DCLogic {
       dirP: { x: -3, y: -2 }, dirQ: { x: 2.5, y: 1.5 },
       normV: { x: 2.6, y: 1.7 },
       dotA: { x: 0.976, y: 0.217 }, dotB: { x: 0.394, y: 0.919 },
-      crossA: [1, 0, 0], crossB: [0.342, 0.94, 0], crossYaw: -0.5, crossSwap: false,
+      crossA: [1, 0, 0], crossB: [0.342, 0.94, 0], crossYaw: -0.5, crossHand: 'left',
       gYaw: 30, gPitch: 20, gRoll: 0,
       lerpA: { x: -5, y: -2.5 }, lerpB: { x: 4.5, y: 3 }, lerpT: 0.3, lerpDir: 1, lerpEase: 'linear',
       slerpA: 0.3, slerpB: 2.5, slerpT: 0, slerpDir: 1,
@@ -591,7 +599,7 @@ class Component extends DCLogic {
     if (t === 'cross') {
       const cur = this.state[key], yaw = this.state.crossYaw, pit = 0.42, S = 130;
       const x1 = (sx - 320) / S, up = (270 - sy) / S, y1 = (up - cur[2] * Math.cos(pit)) / Math.sin(pit);
-      const c = Math.cos(yaw), sn = Math.sin(yaw), hd = Math.atan2(-x1 * sn + y1 * c, x1 * c + y1 * sn);
+      const c = Math.cos(yaw), sn = Math.sin(yaw), hd = Math.atan2((this.state.crossHand === 'left' ? -1 : 1) * (-x1 * sn + y1 * c), x1 * c + y1 * sn);
       const el = Math.asin(Math.max(-1, Math.min(1, cur[2])));
       this.setState({ [key]: [Math.cos(el) * Math.cos(hd), Math.cos(el) * Math.sin(hd), Math.sin(el)] });
       return;
@@ -767,10 +775,9 @@ class Component extends DCLogic {
   }
 
   sceneCross(sc, r) {
-    const s = this.state, C = this.C, P = this.proj(s.crossYaw, 0.42, 130, 320, 270);
+    const s = this.state, C = this.C, P0 = this.proj(s.crossYaw, 0.42, 130, 320, 270), left = s.crossHand === 'left', P = (p) => P0(left ? [p[0], -p[1], p[2]] : p);
     const A = this.norm3(s.crossA), B = this.norm3(s.crossB), la = Math.hypot(A[0], A[1], A[2]), lb = Math.hypot(B[0], B[1], B[2]);
     let X = this.cross3(A, B);
-    if (s.crossSwap) X = this.mul3(X, -1);
     const O = P([0, 0, 0]);
     for (let j = -3; j <= 3; j++) {
       const i = j * 0.5;
@@ -794,15 +801,15 @@ class Component extends DCLogic {
     const lx = Math.hypot(X[0], X[1], X[2]);
     this.Tx(sc, P(this.mul3(A, 1.22)), 'A', C.A, 15);
     this.Tx(sc, P(this.mul3(B, 1.22)), 'B', C.B, 15);
-    const name = s.crossSwap ? 'B × A' : 'A × B';
+    const name = 'A × B';
     if (lx > 0.05) this.Tx(sc, P(this.add3(X, this.mul3(this.norm3(X), 0.18))), name, C.R, 14);
     this.H(sc, P(A), 'crossA', C.A);
     this.H(sc, P(B), 'crossB', C.B);
     const ang = la > 1e-6 && lb > 1e-6 ? Math.acos(Math.max(-1, Math.min(1, this.dot3(A, B) / (la * lb)))) : 0;
     const yd = Math.round(s.crossYaw * 180 / Math.PI);
-    Object.assign(r, { A: this.vs3(A), B: this.vs3(B), C: this.vs3(X), name, swapTo: s.crossSwap ? 'A × B' : 'B × A', area: this.f2(lx), angle: this.deg(ang),
+    Object.assign(r, { A: this.vs3(A), B: this.vs3(B), C: this.vs3(X), name, hands: this.pills([['left', 'Left-handed'], ['right', 'Right-handed']], s.crossHand, 'crossHand'), area: this.f2(lx), angle: this.deg(ang),
       az: Math.round(Math.asin(A[2]) * 180 / Math.PI) + '°', azVal: Math.round(Math.asin(A[2]) * 180 / Math.PI), bz: Math.round(Math.asin(B[2]) * 180 / Math.PI) + '°', bzVal: Math.round(Math.asin(B[2]) * 180 / Math.PI), yawIn: yd + '°', yawVal: yd,
-      hint: 'Drag the tips of A and B · sliders set elevation', title: name + ' ⟂ A and B' });
+      hint: 'Drag the tips of A and B · sliders set elevation', title: name + ' ⟂ A and B · ' + (left ? 'left-handed' : 'right-handed') });
   }
 
   sceneLerp(sc, r) {
@@ -1199,7 +1206,6 @@ class Component extends DCLogic {
       togglePlay: () => this.setState({ playing: !s.playing }),
       reset: () => { const d = this.defaults(); d.topic = s.topic; d.playing = s.playing; this.setState(d); },
       onMove: this.onMove, onUp: this.onUp,
-      swapCross: () => this.setState({ crossSwap: !s.crossSwap }),
       easeLinear: () => this.setState({ lerpEase: 'linear' }),
       easeSmooth: () => this.setState({ lerpEase: 'smooth' }),
       toggleArrows: () => this.setState({ perlinArrows: !s.perlinArrows }),
