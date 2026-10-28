@@ -1,6 +1,6 @@
 # Vector Lab — MathVisualizer
 
-An interactive, animated explainer for the vector math behind games, shaders and animation rigs.
+An interactive, animated explainer for the math behind games, shaders and animation rigs: vectors, rotations, waves and noise.
 
 **Live:** https://qhenshaw.github.io/MathVisualizer/
 
@@ -17,6 +17,11 @@ An interactive, animated explainer for the vector math behind games, shaders and
 | 01 | Quaternions | Rotate a cube by axis and angle; watch `w, x, y, z` and the 720° double cover |
 | 02 | Gimbal lock | Yaw / pitch / roll rings; pitch to 90° and lose an axis |
 | 03 | Slerp | Constant-speed rotation along the arc versus the lerp chord |
+| | **Waves & Noise** | |
+| 01 | Sine & cosine | A point on a circle unrolled into sin and cos waves; frequency, amplitude, phase |
+| 02 | Sawtooth | `frac(x·f)` and its triangle and square cousins driving an output bar |
+| 03 | Perlin noise | Gradient arrows, corner votes, fade curve, octaves, and a 1D slice |
+| 04 | Voronoi | Draggable seeds; cells, Worley F1 distance and F2 − F1 edges |
 
 ## Embedding
 
@@ -27,7 +32,7 @@ An interactive, animated explainer for the vector math behind games, shaders and
 
 URL options:
 
-- `?topic=dot` opens on a tab, and its category (`dir`, `norm`, `dot`, `cross`, `lerp`, `slerp`, `inv`, `gimbal`, `quat`)
+- `?topic=dot` opens on a tab, and its category (`dir`, `norm`, `dot`, `cross`, `lerp`, `inv`, `quat`, `gimbal`, `slerp`, `sine`, `saw`, `perlin`, `voronoi`)
 - `?speed=0.5` changes the animation speed
 - `?grid=0` hides the background grid
 

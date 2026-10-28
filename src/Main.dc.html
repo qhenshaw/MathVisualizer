@@ -23,9 +23,9 @@ button:focus-visible{outline:2px solid #F06FB0;outline-offset:2px}
 
 <header style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px">
 <div style="display: flex; flex-direction: column; gap: 8px; max-width: 760px">
-<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #F06FB0">Interactive primer · 2D &amp; 3D vector math</p>
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #F06FB0">Interactive primer · vectors, rotations, waves &amp; noise</p>
 <h1 style="margin: 0; font-size: 44px; line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; color: #F2F4F8">Vector Lab</h1>
-<p style="margin: 0; font-size: 16px; line-height: 1.5; color: #B4BDCC">Nine core ideas behind every game engine, shader and animation rig. Drag the handles, scrub the sliders, and watch the numbers follow.</p>
+<p style="margin: 0; font-size: 16px; line-height: 1.5; color: #B4BDCC">The math behind every game engine, shader and animation rig. Drag the handles, scrub the sliders, and watch the numbers follow.</p>
 </div>
 <div style="display: flex; gap: 10px; flex-wrap: wrap">
 <button type="button" onClick="{{togglePlay}}" aria-label="{{playLabel}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: #F06FB0; color: #0E1117; font-size: 15px; font-weight: 600; cursor: pointer">
@@ -72,6 +72,7 @@ button:focus-visible{outline:2px solid #F06FB0;outline-offset:2px}
 </div>
 <svg viewBox="0 0 640 480" role="img" aria-label="{{stageTitle}}" onPointerMove="{{onMove}}" onPointerUp="{{onUp}}" onPointerCancel="{{onUp}}" style="width: 100%; height: auto; display: block; touch-action: none; border-radius: 10px; font-family: 'JetBrains Mono', monospace; user-select: none">
 <rect x="0" y="0" width="640" height="480" fill="#0B0F16"></rect>
+<sc-for list="{{scene.cells}}" as="q" hint-placeholder-count="0"><rect x="{{q.x}}" y="{{q.y}}" width="{{q.w}}" height="{{q.h}}" fill="{{q.fill}}"></rect></sc-for>
 <sc-for list="{{scene.grid}}" as="g" hint-placeholder-count="0"><line x1="{{g.x1}}" y1="{{g.y1}}" x2="{{g.x2}}" y2="{{g.y2}}" stroke="{{g.stroke}}" stroke-width="{{g.sw}}"></line></sc-for>
 <sc-for list="{{scene.polys}}" as="p" hint-placeholder-count="0"><polygon points="{{p.pts}}" fill="{{p.fill}}" fill-opacity="{{p.fop}}" stroke="{{p.stroke}}" stroke-width="{{p.sw}}" stroke-linejoin="round"></polygon></sc-for>
 <sc-for list="{{scene.rings}}" as="c" hint-placeholder-count="0"><circle cx="{{c.cx}}" cy="{{c.cy}}" r="{{c.r}}" fill="none" stroke="{{c.stroke}}" stroke-width="{{c.sw}}" stroke-dasharray="{{c.dash}}" opacity="{{c.op}}"></circle></sc-for>
@@ -117,6 +118,16 @@ button:focus-visible{outline:2px solid #F06FB0;outline-offset:2px}
 <line x1="40" y1="40" x2="{{r.stripX}}" y2="40" stroke="#5EE0A8" stroke-width="8" stroke-linecap="round"></line>
 <circle cx="{{r.stripX}}" cy="40" r="7" fill="#F06FB0" stroke="#F2F4F8" stroke-width="2"></circle>
 <text x="{{r.stripLabelX}}" y="20" text-anchor="middle" fill="#5EE0A8" font-size="14" font-weight="600">t = {{r.t}}</text>
+</svg>
+</sc-if>
+<sc-if value="{{is.perlin}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 640 76" role="img" aria-label="One-dimensional slice of the noise along the probe row" style="width: 100%; height: auto; display: block; font-family: 'JetBrains Mono', monospace">
+<rect x="0" y="0" width="640" height="76" rx="10" fill="#0B0F16"></rect>
+<line x1="0" y1="40" x2="640" y2="40" stroke="#2E3748" stroke-width="1"></line>
+<path d="{{r.sliceD}}" fill="none" stroke="#5AB8F5" stroke-width="2.5" stroke-linejoin="round"></path>
+<line x1="{{r.sliceX}}" y1="6" x2="{{r.sliceX}}" y2="70" stroke="#F06FB0" stroke-width="1.5" stroke-dasharray="3 4"></line>
+<circle cx="{{r.sliceX}}" cy="{{r.sliceY}}" r="6" fill="#F06FB0" stroke="#F2F4F8" stroke-width="2"></circle>
+<text x="12" y="18" fill="#A3ADBF" font-size="11">slice along the probe’s row</text>
 </svg>
 </sc-if>
 </section>
@@ -369,12 +380,119 @@ v′ = q v q⁻¹      |q| = 1</div>
 </div>
 </sc-if>
 
+<sc-if value="{{is.sine}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Waves &amp; noise · 01 · Sine &amp; cosine</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">The circle, unrolled</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Spin a point around a circle: its height is sin θ (pink) and its sideways position is cos θ (blue). Plot the height over time and you get a sine wave; cosine is the very same wave shifted a quarter turn. Amplitude scales the height, frequency sets how fast it spins, phase sets where it starts.</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">y = A · sin(2π f t + φ)
+cos θ = sin(θ + 90°)
+sin²θ + cos²θ = 1</div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Frequency f</span><span style="font-family: 'JetBrains Mono', monospace; color: #E6EAF2">{{r.f}}</span></span><input type="range" min="0.25" max="3" step="0.25" value="{{r.fVal}}" onChange="{{set.sineFreq}}"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Amplitude A</span><span style="font-family: 'JetBrains Mono', monospace; color: #E6EAF2">{{r.A}}</span></span><input type="range" min="0.25" max="1.5" step="0.05" value="{{r.AVal}}" onChange="{{set.sineAmp}}"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Phase φ</span><span style="font-family: 'JetBrains Mono', monospace; color: #E6EAF2">{{r.ph}}</span></span><input type="range" min="-180" max="180" step="1" value="{{r.phVal}}" onChange="{{set.sineShift}}"></label>
+</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Angle θ</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.theta}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">A · sin θ</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0; text-align: right; font-weight: 600">{{r.sin}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">A · cos θ</span><span style="font-family: 'JetBrains Mono', monospace; color: #5AB8F5; text-align: right; font-weight: 600">{{r.cos}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">sin²θ + cos²θ</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.sum}}</span></div>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> bobbing and hovering motion, pulsing lights, ocean waves in shaders, circular orbits, and oscillators in audio.</p>
+</div>
+</sc-if>
+<sc-if value="{{is.saw}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Waves &amp; noise · 02 · Sawtooth</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">A ramp that keeps resetting</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Take a steadily increasing value and keep only its fractional part: it climbs from 0 to 1, snaps back, and repeats. That is a sawtooth. Fold it and you get a triangle wave; threshold it and you get a square wave. The bar on the right is the output driving something.</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">saw(x) = frac(x·f) = x·f − floor(x·f)
+tri(x) = 1 − |2 · saw(x) − 1|
+square(x) = saw(x) &lt; 0.5 ? 1 : 0</div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div role="group" aria-label="Waveform" style="display: flex; gap: 8px; flex-wrap: wrap">
+<sc-for list="{{r.shapes}}" as="b" hint-placeholder-count="3">
+<button type="button" onClick="{{b.pick}}" aria-pressed="{{b.on}}" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid {{b.bd}}; background: {{b.bg}}; color: {{b.fg}}; font-size: 14px; font-weight: 600; cursor: pointer">{{b.label}}</button>
+</sc-for>
+</div>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Frequency f</span><span style="font-family: 'JetBrains Mono', monospace; color: #E6EAF2">{{r.f}}</span></span><input type="range" min="0.5" max="4" step="0.5" value="{{r.fVal}}" onChange="{{set.sawFreq}}"></label>
+</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">x</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.x}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">x · f</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.xf}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">floor(x · f)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.fl}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">frac(x · f) = saw</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D; text-align: right">{{r.fr}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">Output</span><span style="font-family: 'JetBrains Mono', monospace; color: #5EE0A8; text-align: right; font-weight: 600">{{r.out}}</span></div>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> looping animation time, scrolling textures, stripes and checkerboards in shaders, blinking, and LFOs in synths.</p>
+</div>
+</sc-if>
+<sc-if value="{{is.perlin}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Waves &amp; noise · 03 · Perlin noise</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Smooth randomness from a grid of arrows</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Perlin noise puts a random gradient arrow on every grid corner. For any point, the four corners around it each vote with the dot product of their arrow and the offset to the point (amber numbers), and the votes are blended with a smooth fade curve. The result is random but continuous. Stack octaves, each twice the frequency and half the strength, for fractal detail. Drag the probe; the strip below is a slice along its row.</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">vᵢ = gᵢ · (p − cornerᵢ)
+fade(t) = 6t⁵ − 15t⁴ + 10t³
+n = lerp(lerp(v₀₀, v₁₀, u), lerp(v₀₁, v₁₁, u), v)
+fBm = Σ ½ᵏ · n(2ᵏ p)</div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Octaves</span><span style="font-family: 'JetBrains Mono', monospace; color: #E6EAF2">{{r.oct}}</span></span><input type="range" min="1" max="5" step="1" value="{{r.octVal}}" onChange="{{set.perlinOct}}"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Grid cells across</span><span style="font-family: 'JetBrains Mono', monospace; color: #E6EAF2">{{r.scale}}</span></span><input type="range" min="3" max="12" step="1" value="{{r.scaleVal}}" onChange="{{set.perlinScale}}"></label>
+<button type="button" onClick="{{toggleArrows}}" style="align-self: flex-start; min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #2E3748; background: #1A2030; color: #E6EAF2; font-size: 14px; font-weight: 600; cursor: pointer">{{r.arrowsBtn}}</button>
+</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Grid cell</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.cell}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Position in cell (x, y)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.local}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Fade weights (u, v)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.fadeW}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Corner votes</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D; text-align: right">{{r.votes}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Noise n (−1 … 1)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0; text-align: right; font-weight: 600">{{r.n}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">Mapped to 0 … 1</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.n01}}</span></div>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> terrain heightmaps, clouds, fire and water shaders, camera shake, and organic wandering motion.</p>
+</div>
+</sc-if>
+<sc-if value="{{is.voronoi}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Waves &amp; noise · 04 · Voronoi</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Every point belongs to its nearest seed</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Scatter seed points and give each one the region of space closer to it than to any other seed; the borders sit exactly halfway between neighbours. Shade by the distance to the nearest seed (F1) and you get Worley, or cellular, noise; F2 − F1 lights up the cell edges. Drag the seeds or the pink probe.</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">cell(p) = the seed sᵢ nearest to p
+F1 = distance to nearest seed
+F2 = distance to second nearest
+edges = F2 − F1</div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div role="group" aria-label="Shading" style="display: flex; gap: 8px; flex-wrap: wrap">
+<sc-for list="{{r.modes}}" as="b" hint-placeholder-count="3">
+<button type="button" onClick="{{b.pick}}" aria-pressed="{{b.on}}" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid {{b.bd}}; background: {{b.bg}}; color: {{b.fg}}; font-size: 14px; font-weight: 600; cursor: pointer">{{b.label}}</button>
+</sc-for>
+</div>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Seeds</span><span style="font-family: 'JetBrains Mono', monospace; color: #E6EAF2">{{r.count}}</span></span><input type="range" min="3" max="20" step="1" value="{{r.countVal}}" onChange="{{set.vorCount}}"></label>
+</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Nearest seed</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0; text-align: right; font-weight: 600">{{r.near}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">F1</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.f1}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">F2</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.f2}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">F2 − F1</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.edge}}</span></div>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> cracked ground, stone, scales and cell textures, caustics, shattering effects, and territory maps.</p>
+</div>
+</sc-if>
 </aside>
 </div>
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"speed":{"editor":"range","min":0.25,"max":2,"step":0.25,"default":1,"section":"Motion"},"showGrid":{"editor":"boolean","default":true,"section":"Stage"},"startTopic":{"editor":"enum","options":["dir","norm","dot","cross","lerp","slerp","inv","gimbal","quat"],"default":"dir","section":"Stage"},"$preview":{"width":1440,"height":1000}}'>
+<script type="text/x-dc" data-dc-script data-props='{"speed":{"editor":"range","min":0.25,"max":2,"step":0.25,"default":1,"section":"Motion"},"showGrid":{"editor":"boolean","default":true,"section":"Stage"},"startTopic":{"editor":"enum","options":["dir","norm","dot","cross","lerp","inv","quat","gimbal","slerp","sine","saw","perlin","voronoi"],"default":"dir","section":"Stage"},"$preview":{"width":1440,"height":1000}}'>
 class Component extends DCLogic {
   C = { A: '#F5B83D', B: '#5AB8F5', R: '#F06FB0', U: '#5EE0A8', muted: '#8C97AB', faint: '#4A556B', text: '#E6EAF2', axis: '#3A4558', grid: '#181F2C' };
 
@@ -391,8 +509,18 @@ class Component extends DCLogic {
       lerpA: { x: -5, y: -2.5 }, lerpB: { x: 4.5, y: 3 }, lerpT: 0.3, lerpDir: 1, lerpEase: 'linear',
       slerpA: 0.3, slerpB: 2.5, slerpT: 0, slerpDir: 1,
       invPA: { x: -5, y: -2.5 }, invPB: { x: 5, y: 2.5 }, invT: 0.35, invDir: 1,
-      qYaw: 35, qPitch: 50, qAngle: 0
+      qYaw: 35, qPitch: 50, qAngle: 0,
+      sinePhase: 0, sineFreq: 1, sineAmp: 1, sineShift: 0,
+      sawX: 0, sawFreq: 1, sawShape: 'saw',
+      perlinT: 0, perlinOct: 1, perlinScale: 6, perlinProbe: { x: 300, y: 210 }, perlinArrows: true,
+      vorSeeds: this.makeSeeds(), vorT: 0, vorMode: 'cells', vorCount: 12, vorProbe: { x: 420, y: 300 }
     };
+  }
+
+  makeSeeds() {
+    let q = 7;
+    const rnd = () => { q = (q * 16807) % 2147483647; return q / 2147483647; };
+    return Array.from({ length: 20 }, () => ({ hx: 40 + rnd() * 560, hy: 40 + rnd() * 400, ph: rnd() * 6.283, w: 0.4 + rnd() * 0.6 }));
   }
 
   componentDidMount() {
@@ -428,6 +556,10 @@ class Component extends DCLogic {
     if (t === 'lerp') { const b = this.bounce(s.lerpT, s.lerpDir, 0.28 * k, 0, 1); return { lerpT: b[0], lerpDir: b[1] }; }
     if (t === 'slerp') { const b = this.bounce(s.slerpT, s.slerpDir, 0.3 * k, 0, 1); return { slerpT: b[0], slerpDir: b[1] }; }
     if (t === 'inv') { const b = this.bounce(s.invT, s.invDir, 0.25 * k, 0, 1); return { invT: b[0], invDir: b[1] }; }
+    if (t === 'sine') return { sinePhase: (s.sinePhase + s.sineFreq * k * Math.PI) % (Math.PI * 200) };
+    if (t === 'saw') return { sawX: (s.sawX + 0.3 * k) % 4 };
+    if (t === 'perlin') return { perlinT: s.perlinT + k };
+    if (t === 'voronoi') return { vorT: s.vorT + k };
     if (t === 'quat') return { qAngle: (s.qAngle + 45 * k) % 720 };
     return null;
   }
@@ -460,6 +592,14 @@ class Component extends DCLogic {
       this.setState({ [key]: [Math.cos(el) * Math.cos(hd), Math.cos(el) * Math.sin(hd), Math.sin(el)] });
       return;
     }
+    if (key === 'perlinProbe' || key === 'vorProbe') { this.setState({ [key]: { x: sx, y: sy } }); return; }
+    if (key.indexOf('vorSeed:') === 0) {
+      const i = +key.slice(8), st = this.state, q = st.vorSeeds[i];
+      const ox = 22 * Math.cos(st.vorT * q.w + q.ph), oy = 22 * Math.sin(st.vorT * q.w * 1.3 + q.ph), seeds = st.vorSeeds.slice();
+      seeds[i] = Object.assign({}, q, { hx: sx - ox, hy: sy - oy });
+      this.setState({ vorSeeds: seeds });
+      return;
+    }
     const v = this.view(t);
     if (!v) return;
     const p = { x: (sx - v.ox) / v.S, y: (v.oy - sy) / v.S };
@@ -481,7 +621,7 @@ class Component extends DCLogic {
   vs(p) { return '(' + this.f2(p.x) + ', ' + this.f2(p.y) + ')'; }
   vs3(p) { return '(' + this.f2(p[0]) + ', ' + this.f2(p[1]) + ', ' + this.f2(p[2]) + ')'; }
   toS(p, v) { return { x: v.ox + p.x * v.S, y: v.oy - p.y * v.S }; }
-  sc() { return { grid: [], polys: [], rings: [], paths: [], lines: [], arrows: [], dots: [], labels: [], handles: [] }; }
+  sc() { return { cells: [], grid: [], polys: [], rings: [], paths: [], lines: [], arrows: [], dots: [], labels: [], handles: [] }; }
   L(sc, a, b, stroke, sw, op, dash) { sc.lines.push({ x1: this.r1(a.x), y1: this.r1(a.y), x2: this.r1(b.x), y2: this.r1(b.y), stroke, sw: sw || 1, op: op == null ? 1 : op, dash: dash || 'none' }); }
   Ar(sc, a, b, stroke, sw, op) {
     sw = sw || 3; op = op == null ? 1 : op;
@@ -857,14 +997,184 @@ class Component extends DCLogic {
       hint: 'Sliders set axis and angle · colored faces are +x, +y, +z', title: 'q = (cos θ⁄2, u sin θ⁄2)' });
   }
 
+  pills(opts, cur, key) {
+    return opts.map(([id, label]) => {
+      const on = id === cur;
+      return { label, on, bg: on ? '#E6EAF2' : 'transparent', fg: on ? '#0E1117' : '#E6EAF2', bd: on ? '#E6EAF2' : '#2E3748', pick: () => this.setState({ [key]: id }) };
+    });
+  }
+
+  sceneSine(sc, r) {
+    const s = this.state, C = this.C, A = s.sineAmp, f = s.sineFreq, ph = s.sineShift * Math.PI / 180, th = s.sinePhase + ph;
+    const c = { x: 140, y: 240 }, R = 80 * A, gx0 = 280, gx1 = 620, span = 4 * Math.PI;
+    sc.grid.push({ x1: 20, y1: 240, x2: 260, y2: 240, stroke: C.axis, sw: 1.5 });
+    sc.grid.push({ x1: 140, y1: 110, x2: 140, y2: 370, stroke: C.axis, sw: 1.5 });
+    sc.grid.push({ x1: gx0, y1: 240, x2: gx1, y2: 240, stroke: C.axis, sw: 1.5 });
+    sc.grid.push({ x1: gx0, y1: 110, x2: gx0, y2: 370, stroke: C.axis, sw: 1.5 });
+    [1, -1].forEach((k) => sc.grid.push({ x1: gx0, y1: this.r1(240 - R * k), x2: gx1, y2: this.r1(240 - R * k), stroke: C.grid, sw: 1 }));
+    for (let i = 1; i <= 4; i++) sc.grid.push({ x1: gx0 + (gx1 - gx0) * i / 4, y1: 110, x2: gx0 + (gx1 - gx0) * i / 4, y2: 370, stroke: C.grid, sw: 1 });
+    this.Tx(sc, { x: gx0 - 8, y: 240 - R + 4 }, '+A', '#758199', 10, 'end', 400);
+    this.Tx(sc, { x: gx0 - 8, y: 240 + R + 4 }, '−A', '#758199', 10, 'end', 400);
+    this.Tx(sc, { x: gx0, y: 392 }, 'now', '#A3ADBF', 11, 'middle', 500);
+    this.Tx(sc, { x: gx1, y: 392 }, 'earlier →', '#A3ADBF', 11, 'end', 500);
+    this.Tx(sc, { x: gx0 + 12, y: 100 }, 'sin', C.R, 13, 'start');
+    this.Tx(sc, { x: gx0 + 52, y: 100 }, 'cos', C.B, 13, 'start');
+    this.Ring(sc, c, R, '#3A4558', 1.5);
+    const p = { x: c.x + R * Math.cos(th), y: c.y - R * Math.sin(th) }, foot = { x: p.x, y: c.y };
+    let dS = '', dC = '';
+    for (let i = 0; i <= 220; i++) {
+      const x = gx0 + (gx1 - gx0) * i / 220, a = th - span * f * i / 220;
+      dS += (i ? ' L' : 'M') + this.r1(x) + ' ' + this.r1(240 - R * Math.sin(a));
+      dC += (i ? ' L' : 'M') + this.r1(x) + ' ' + this.r1(240 - R * Math.cos(a));
+    }
+    this.Pa(sc, dC, C.B, 2, 0.75, '6 5');
+    this.Pa(sc, dS, C.R, 3.5, 1);
+    const tw = ((th % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+    if (tw > 0.05) this.Pa(sc, this.arc(c, 20, 0, tw), '#E6EAF2', 1.5, 0.7);
+    this.L(sc, p, { x: gx0, y: p.y }, C.R, 1.5, 0.6, '4 5');
+    this.L(sc, c, p, '#E6EAF2', 2, 0.9);
+    this.L(sc, c, foot, C.B, 4.5, 0.95);
+    this.L(sc, foot, p, C.R, 4.5, 0.95);
+    this.Dot(sc, p, 7, '#F2F4F8', '#0B0F16', 2);
+    this.Dot(sc, { x: gx0, y: p.y }, 6, C.R, '#0B0F16', 2);
+    this.Dot(sc, { x: gx0, y: 240 - R * Math.cos(th) }, 4.5, C.B, '#0B0F16', 1.5);
+    this.Tx(sc, { x: p.x + (Math.cos(th) >= 0 ? 10 : -10), y: (p.y + c.y) / 2 + 4 }, 'sin θ', C.R, 12, Math.cos(th) >= 0 ? 'start' : 'end');
+    this.Tx(sc, { x: (c.x + p.x) / 2, y: c.y + (Math.sin(th) >= 0 ? 18 : -10) }, 'cos θ', C.B, 12);
+    const deg = tw * 180 / Math.PI, sn = A * Math.sin(th), cs = A * Math.cos(th);
+    Object.assign(r, { theta: deg.toFixed(0) + '°', sin: this.f2(sn), cos: this.f2(cs), sum: (Math.sin(th) ** 2 + Math.cos(th) ** 2).toFixed(2),
+      f: f.toFixed(2), fVal: f, A: A.toFixed(2), AVal: A, ph: s.sineShift.toFixed(0) + '°', phVal: s.sineShift,
+      hint: 'Adjust frequency, amplitude and phase', title: 'y = A · sin(2π f t + φ)' });
+  }
+
+  sceneSaw(sc, r) {
+    const s = this.state, C = this.C, f = s.sawFreq, shp = s.sawShape, x0 = 60, x1 = 560, y0 = 380, y1 = 140, U = 4;
+    const frac = (u) => u * f - Math.floor(u * f);
+    const sh = (u) => { const fr = frac(u); return shp === 'tri' ? 1 - Math.abs(2 * fr - 1) : (shp === 'sq' ? (fr < 0.5 ? 1 : 0) : fr); };
+    const X = (u) => x0 + (x1 - x0) * u / U, Y = (v) => y0 - (y0 - y1) * v;
+    [0, 0.5, 1].forEach((v) => sc.grid.push({ x1: x0, y1: Y(v), x2: x1, y2: Y(v), stroke: v === 0 ? C.axis : C.grid, sw: v === 0 ? 1.5 : 1 }));
+    for (let u = 0; u <= U; u++) { sc.grid.push({ x1: X(u), y1: Y(1) - 10, x2: X(u), y2: Y(0), stroke: u === 0 ? C.axis : C.grid, sw: u === 0 ? 1.5 : 1 }); this.Tx(sc, { x: X(u), y: Y(0) + 20 }, String(u), '#758199', 10, 'middle', 400); }
+    this.Tx(sc, { x: x0 - 10, y: Y(0) + 4 }, '0', '#758199', 10, 'end', 400);
+    this.Tx(sc, { x: x0 - 10, y: Y(1) + 4 }, '1', '#758199', 10, 'end', 400);
+    this.Tx(sc, { x: x1, y: Y(0) + 40 }, 'x →', '#A3ADBF', 11, 'end', 500);
+    const path = (fn) => { let d = ''; for (let i = 0; i <= 800; i++) { const u = U * i / 800; d += (i ? ' L' : 'M') + this.r1(X(u)) + ' ' + this.r1(Y(fn(u))); } return d; };
+    if (shp !== 'saw') { this.Pa(sc, path(frac), C.A, 1.5, 0.45, '4 5'); this.Tx(sc, { x: x0 + 8, y: Y(1) - 16 }, 'underlying saw', C.A, 11, 'start', 500); }
+    this.Pa(sc, path(sh), shp === 'saw' ? C.A : C.U, 3.5, 1);
+    const u = s.sawX, v = sh(u), pt = { x: X(u), y: Y(v) };
+    this.L(sc, { x: pt.x, y: Y(1) - 10 }, { x: pt.x, y: Y(0) }, C.R, 1.5, 0.8, '4 5');
+    this.L(sc, pt, { x: 590, y: pt.y }, C.R, 1.5, 0.6, '3 5');
+    this.Po(sc, [{ x: 590, y: Y(1) }, { x: 620, y: Y(1) }, { x: 620, y: Y(0) }, { x: 590, y: Y(0) }], '#131824', 1, '#2E3748', 1.5);
+    if (v > 0.003) this.Po(sc, [{ x: 593, y: Y(v) }, { x: 617, y: Y(v) }, { x: 617, y: Y(0) - 3 }, { x: 593, y: Y(0) - 3 }], C.U, 0.95);
+    this.Tx(sc, { x: 605, y: Y(1) - 12 }, 'output', '#A3ADBF', 11, 'middle', 500);
+    this.Dot(sc, pt, 7, C.R, '#F2F4F8', 2);
+    this.Tx(sc, { x: pt.x + 12, y: pt.y - 12 }, v.toFixed(2), C.R, 13, 'start');
+    Object.assign(r, { x: u.toFixed(2), xf: (u * f).toFixed(2), fl: String(Math.floor(u * f)), fr: frac(u).toFixed(2), out: v.toFixed(2), f: f.toFixed(1), fVal: f,
+      shapes: this.pills([['saw', 'Sawtooth'], ['tri', 'Triangle'], ['sq', 'Square']], shp, 'sawShape'),
+      hint: 'Pick a waveform · the marker scans along x', title: shp === 'tri' ? 'tri(x) = 1 − |2·frac(x·f) − 1|' : (shp === 'sq' ? 'square(x) = frac(x·f) < 0.5' : 'saw(x) = frac(x · f)') });
+  }
+
+  perm = (() => { const p = []; for (let i = 0; i < 256; i++) p.push(i); let q = 1337; for (let i = 255; i > 0; i--) { q = (q * 16807) % 2147483647; const j = q % (i + 1), t = p[i]; p[i] = p[j]; p[j] = t; } return p.concat(p); })();
+  grad(i, j) { const h = this.perm[(this.perm[i & 255] + j) & 255]; const a = h / 256 * Math.PI * 2; return [Math.cos(a), Math.sin(a)]; }
+  fade(t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+  noise2(x, y) {
+    const i = Math.floor(x), j = Math.floor(y), fx = x - i, fy = y - j;
+    const d = (gi, gj, dx, dy) => { const g = this.grad(gi, gj); return g[0] * dx + g[1] * dy; };
+    const u = this.fade(fx), v = this.fade(fy), n00 = d(i, j, fx, fy), n10 = d(i + 1, j, fx - 1, fy), n01 = d(i, j + 1, fx, fy - 1), n11 = d(i + 1, j + 1, fx - 1, fy - 1);
+    const a = n00 + (n10 - n00) * u, b = n01 + (n11 - n01) * u;
+    return a + (b - a) * v;
+  }
+  fbm(x, y, oct) { let sum = 0, amp = 1, fr = 1, tot = 0; for (let o = 0; o < oct; o++) { sum += amp * this.noise2(x * fr + o * 17.3, y * fr + o * 9.1); tot += amp; amp *= 0.5; fr *= 2; } return sum / tot; }
+  ramp(t) {
+    t = Math.max(0, Math.min(1, t));
+    const st = [[11, 15, 22], [40, 78, 122], [110, 178, 228], [236, 240, 246]], x = t * 3, i = Math.min(2, Math.floor(x)), f = x - i, a = st[i], b = st[i + 1];
+    return 'rgb(' + Math.round(a[0] + (b[0] - a[0]) * f) + ',' + Math.round(a[1] + (b[1] - a[1]) * f) + ',' + Math.round(a[2] + (b[2] - a[2]) * f) + ')';
+  }
+
+  scenePerlin(sc, r) {
+    const s = this.state, C = this.C, L = 640 / s.perlinScale, drift = s.perlinT * 0.3, oct = s.perlinOct;
+    const N = (px, py) => this.fbm(px / L + drift, py / L, oct), to01 = (n) => Math.max(0, Math.min(1, n / 0.75 * 0.5 + 0.5));
+    for (let y = 0; y < 480; y += 12) for (let x = 0; x < 640; x += 12) sc.cells.push({ x, y, w: 12.5, h: 12.5, fill: this.ramp(to01(N(x + 6, y + 6))) });
+    const i0 = Math.floor(drift);
+    for (let gi = i0; (gi - drift) * L <= 641; gi++) { const x = (gi - drift) * L; if (x >= 0) sc.grid.push({ x1: this.r1(x), y1: 0, x2: this.r1(x), y2: 480, stroke: 'rgba(230,234,242,0.22)', sw: 1 }); }
+    for (let gj = 0; gj * L <= 481; gj++) sc.grid.push({ x1: 0, y1: this.r1(gj * L), x2: 640, y2: this.r1(gj * L), stroke: 'rgba(230,234,242,0.22)', sw: 1 });
+    const P = s.perlinProbe, nx = P.x / L + drift, ny = P.y / L, ci = Math.floor(nx), cj = Math.floor(ny), fx = nx - ci, fy = ny - cj;
+    const lp = (gi, gj) => ({ x: (gi - drift) * L, y: gj * L });
+    if (s.perlinArrows) {
+      for (let gi = i0; (gi - drift) * L <= 641; gi++) for (let gj = 0; gj * L <= 481; gj++) {
+        if ((gi === ci || gi === ci + 1) && (gj === cj || gj === cj + 1)) continue;
+        const g = this.grad(gi, gj), o = lp(gi, gj);
+        this.Ar(sc, o, { x: o.x + g[0] * L * 0.32, y: o.y + g[1] * L * 0.32 }, '#E6EAF2', 1.8, 0.7);
+      }
+    }
+    const votes = [];
+    [[0, 0], [1, 0], [0, 1], [1, 1]].forEach(([a, b]) => {
+      const g = this.grad(ci + a, cj + b), o = lp(ci + a, cj + b), dt = g[0] * (fx - a) + g[1] * (fy - b);
+      votes.push(dt.toFixed(2));
+      this.L(sc, o, P, C.B, 1.5, 0.95, '4 4');
+      this.Ar(sc, o, { x: o.x + g[0] * L * 0.4, y: o.y + g[1] * L * 0.4 }, C.A, 3);
+      this.Dot(sc, o, 4, C.A, '#0B0F16', 1.5);
+      this.Tx(sc, { x: o.x + (a ? 10 : -10), y: o.y + (b ? 20 : -10) }, dt.toFixed(2), C.A, 12, a ? 'start' : 'end');
+    });
+    const full = N(P.x, P.y);
+    this.Tx(sc, { x: P.x, y: P.y - 24 }, 'n = ' + full.toFixed(2), '#F2F4F8', 14);
+    this.H(sc, P, 'perlinProbe', C.R);
+    let d = '';
+    for (let x = 0; x <= 640; x += 6) d += (x ? ' L' : 'M') + x + ' ' + this.r1(68 - to01(N(x, P.y)) * 56);
+    Object.assign(r, { cell: '(' + ci + ', ' + cj + ')', local: '(' + fx.toFixed(2) + ', ' + fy.toFixed(2) + ')', fadeW: '(' + this.fade(fx).toFixed(2) + ', ' + this.fade(fy).toFixed(2) + ')',
+      votes: votes.join('  '), n: this.f2(full), n01: to01(full).toFixed(2), oct: String(oct), octVal: oct, scale: String(s.perlinScale), scaleVal: s.perlinScale,
+      arrowsBtn: s.perlinArrows ? 'Hide gradient arrows' : 'Show gradient arrows', sliceD: d, sliceX: this.r1(P.x), sliceY: this.r1(68 - to01(full) * 56),
+      hint: 'Drag the probe · the field drifts while playing', title: 'Perlin noise · ' + oct + (oct > 1 ? ' octaves' : ' octave') });
+  }
+
+  clipHalf(poly, a, b) {
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, nx = b.x - a.x, ny = b.y - a.y, f = (p) => (p.x - mx) * nx + (p.y - my) * ny, out = [];
+    for (let i = 0; i < poly.length; i++) {
+      const p = poly[i], q = poly[(i + 1) % poly.length], fp = f(p), fq = f(q);
+      if (fp <= 0) out.push(p);
+      if ((fp <= 0) !== (fq <= 0)) { const t = fp / (fp - fq); out.push({ x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t }); }
+    }
+    return out;
+  }
+
+  sceneVoronoi(sc, r) {
+    const s = this.state, C = this.C, P = s.vorProbe;
+    const pts = s.vorSeeds.slice(0, s.vorCount).map((q) => ({ x: q.hx + 22 * Math.cos(s.vorT * q.w + q.ph), y: q.hy + 22 * Math.sin(s.vorT * q.w * 1.3 + q.ph) }));
+    const near = (x, y) => { let d1 = 1e9, d2 = 1e9, i1 = 0, i2 = 0; pts.forEach((q, i) => { const dd = Math.hypot(q.x - x, q.y - y); if (dd < d1) { d2 = d1; i2 = i1; d1 = dd; i1 = i; } else if (dd < d2) { d2 = dd; i2 = i; } }); return { d1, d2, i1, i2 }; };
+    const cellPoly = (i) => { let poly = [{ x: 0, y: 0 }, { x: 640, y: 0 }, { x: 640, y: 480 }, { x: 0, y: 480 }]; pts.forEach((b, j) => { if (j !== i && poly.length) poly = this.clipHalf(poly, pts[i], b); }); return poly; };
+    const col = (i) => 'hsl(' + Math.round((i * 137.5) % 360) + ', 36%, ' + (i % 2 ? 27 : 35) + '%)';
+    if (s.vorMode === 'cells') {
+      pts.forEach((a, i) => { const poly = cellPoly(i); if (poly.length > 2) this.Po(sc, poly, col(i), 1, '#0B0F16', 2.5); });
+    } else {
+      for (let y = 0; y < 480; y += 12) for (let x = 0; x < 640; x += 12) {
+        const n = near(x + 6, y + 6), t = s.vorMode === 'f1' ? 1 - Math.min(1, n.d1 / 110) : 1 - Math.min(1, (n.d2 - n.d1) / 28);
+        sc.cells.push({ x, y, w: 12.5, h: 12.5, fill: this.ramp(t) });
+      }
+    }
+    const nP = near(P.x, P.y), hp = cellPoly(nP.i1);
+    if (hp.length > 2) this.Po(sc, hp, 'none', 0, C.R, 3);
+    if (pts.length > 1) {
+      const q2 = pts[nP.i2];
+      this.L(sc, P, q2, '#C9D1E0', 1.5, 0.7, '3 5');
+      this.Tx(sc, { x: (P.x + q2.x) / 2, y: (P.y + q2.y) / 2 + 18 }, 'F2 ' + nP.d2.toFixed(0), '#C9D1E0', 11, 'middle', 500);
+    }
+    const q1 = pts[nP.i1];
+    this.L(sc, P, q1, C.R, 2.5, 1, '5 4');
+    this.Tx(sc, { x: (P.x + q1.x) / 2, y: (P.y + q1.y) / 2 - 8 }, 'F1 ' + nP.d1.toFixed(0), C.R, 12);
+    pts.forEach((q, i) => this.H(sc, q, 'vorSeed:' + i, '#F2F4F8'));
+    this.H(sc, P, 'vorProbe', C.R);
+    Object.assign(r, { near: '#' + (nP.i1 + 1), f1: nP.d1.toFixed(1) + ' px', f2: pts.length > 1 ? nP.d2.toFixed(1) + ' px' : '—', edge: pts.length > 1 ? (nP.d2 - nP.d1).toFixed(1) + ' px' : '—',
+      count: String(s.vorCount), countVal: s.vorCount, modes: this.pills([['cells', 'Cells'], ['f1', 'Distance F1'], ['edges', 'Edges F2 − F1']], s.vorMode, 'vorMode'),
+      hint: 'Drag seeds or the pink probe · seeds wander while playing', title: s.vorMode === 'cells' ? 'Voronoi cells' : (s.vorMode === 'f1' ? 'Worley noise · F1' : 'Worley noise · F2 − F1') });
+  }
+
   renderVals() {
     const s = this.state, topic = this.topicOf(), sc = this.sc(), r = {};
-    const map = { dir: 'sceneDir', norm: 'sceneNorm', dot: 'sceneDot', cross: 'sceneCross', lerp: 'sceneLerp', slerp: 'sceneSlerp', inv: 'sceneInv', gimbal: 'sceneGimbal', quat: 'sceneQuat' };
+    const map = { dir: 'sceneDir', norm: 'sceneNorm', dot: 'sceneDot', cross: 'sceneCross', lerp: 'sceneLerp', slerp: 'sceneSlerp', inv: 'sceneInv', gimbal: 'sceneGimbal', quat: 'sceneQuat', sine: 'sceneSine', saw: 'sceneSaw', perlin: 'scenePerlin', voronoi: 'sceneVoronoi' };
     this[map[topic] || 'sceneDir'](sc, r);
     const topics = [['dir', '01', 'Directions', 'vec'], ['norm', '02', 'Normalize', 'vec'], ['dot', '03', 'Dot product', 'vec'], ['cross', '04', 'Cross product', 'vec'], ['lerp', '05', 'Lerp', 'vec'], ['inv', '06', 'Inverse lerp', 'vec'],
-      ['quat', '01', 'Quaternions', 'rot'], ['gimbal', '02', 'Gimbal lock', 'rot'], ['slerp', '03', 'Slerp', 'rot']];
+      ['quat', '01', 'Quaternions', 'rot'], ['gimbal', '02', 'Gimbal lock', 'rot'], ['slerp', '03', 'Slerp', 'rot'],
+      ['sine', '01', 'Sine & cosine', 'wave'], ['saw', '02', 'Sawtooth', 'wave'], ['perlin', '03', 'Perlin noise', 'wave'], ['voronoi', '04', 'Voronoi', 'wave']];
     const catOf = (id) => (topics.find((x) => x[0] === id) || topics[0])[3], cat = catOf(topic), last = s.lastByCat || {};
-    const cats = [['vec', 'Vectors'], ['rot', 'Rotations']].map(([id, label]) => {
+    const cats = [['vec', 'Vectors'], ['rot', 'Rotations'], ['wave', 'Waves & Noise']].map(([id, label]) => {
       const on = id === cat, first = topics.find((x) => x[3] === id)[0];
       return { id, label, pressed: on, count: String(topics.filter((x) => x[3] === id).length), bg: on ? '#E6EAF2' : 'transparent', fg: on ? '#0E1117' : '#C9D1E0',
         pick: () => { if (!on) this.setState({ topic: last[id] || first, drag: null, lastByCat: { ...last, [cat]: topic } }); } };
@@ -888,9 +1198,10 @@ class Component extends DCLogic {
       swapCross: () => this.setState({ crossSwap: !s.crossSwap }),
       easeLinear: () => this.setState({ lerpEase: 'linear' }),
       easeSmooth: () => this.setState({ lerpEase: 'smooth' }),
+      toggleArrows: () => this.setState({ perlinArrows: !s.perlinArrows }),
       toggleLock: () => this.setState({ gPitch: gLocked ? 20 : 90 }),
       set: { crossAz: setZ('crossA'), crossBz: setZ('crossB'), crossYaw: (e) => this.setState({ crossYaw: parseFloat(e.target.value) * Math.PI / 180 }),
-        gYaw: num('gYaw'), gPitch: num('gPitch'), gRoll: numPause('gRoll'), lerpT: numPause('lerpT'), slerpT: numPause('slerpT'), invT: numPause('invT'), qAngle: numPause('qAngle'), qYaw: num('qYaw'), qPitch: num('qPitch') }
+        gYaw: num('gYaw'), sineFreq: num('sineFreq'), sineAmp: num('sineAmp'), sineShift: num('sineShift'), sawFreq: num('sawFreq'), perlinOct: num('perlinOct'), perlinScale: num('perlinScale'), vorCount: num('vorCount'), gPitch: num('gPitch'), gRoll: numPause('gRoll'), lerpT: numPause('lerpT'), slerpT: numPause('slerpT'), invT: numPause('invT'), qAngle: numPause('qAngle'), qYaw: num('qYaw'), qPitch: num('qPitch') }
     };
   }
 }
