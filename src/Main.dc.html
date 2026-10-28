@@ -92,43 +92,6 @@ button:focus-visible{outline:2px solid #F06FB0;outline-offset:2px}
 </div>
 </sc-if>
 </div>
-<sc-if value="{{is.dot}}" hint-placeholder-val="{{false}}">
-<svg viewBox="0 0 640 76" role="img" aria-label="Dot product result on a scale from minus 1 to 1" style="width: 100%; height: auto; display: block; font-family: 'JetBrains Mono', monospace">
-<rect x="0" y="0" width="640" height="76" rx="10" fill="#0B0F16"></rect>
-<line x1="40" y1="40" x2="600" y2="40" stroke="#2E3748" stroke-width="2"></line>
-<line x1="40" y1="34" x2="40" y2="46" stroke="#4A556B" stroke-width="1.5"></line>
-<line x1="180" y1="36" x2="180" y2="44" stroke="#4A556B" stroke-width="1.5"></line>
-<line x1="320" y1="30" x2="320" y2="50" stroke="#4A556B" stroke-width="1.5"></line>
-<line x1="460" y1="36" x2="460" y2="44" stroke="#4A556B" stroke-width="1.5"></line>
-<line x1="600" y1="34" x2="600" y2="46" stroke="#4A556B" stroke-width="1.5"></line>
-<text x="40" y="66" text-anchor="middle" fill="#8C97AB" font-size="11">−1</text>
-<text x="180" y="66" text-anchor="middle" fill="#8C97AB" font-size="11">−0.5</text>
-<text x="320" y="66" text-anchor="middle" fill="#8C97AB" font-size="11">0</text>
-<text x="460" y="66" text-anchor="middle" fill="#8C97AB" font-size="11">0.5</text>
-<text x="600" y="66" text-anchor="middle" fill="#8C97AB" font-size="11">1</text>
-<sc-if value="{{r.hasOut}}" hint-placeholder-val="{{false}}"><line x1="320" y1="40" x2="{{r.outX2}}" y2="40" stroke="{{r.barColor}}" stroke-width="8" stroke-linecap="round"></line></sc-if>
-<text x="{{r.outX}}" y="20" text-anchor="middle" fill="{{r.barColor}}" font-size="14" font-weight="600">A · B = {{r.dot}}</text>
-</svg>
-</sc-if>
-<sc-if value="{{is.inv}}" hint-placeholder-val="{{false}}">
-<svg viewBox="0 0 640 76" role="img" aria-label="Inverse lerp result on a scale from 0 to 1" style="width: 100%; height: auto; display: block; font-family: 'JetBrains Mono', monospace">
-<rect x="0" y="0" width="640" height="76" rx="10" fill="#0B0F16"></rect>
-<line x1="40" y1="40" x2="600" y2="40" stroke="#2E3748" stroke-width="2"></line>
-<line x1="40" y1="32" x2="40" y2="48" stroke="#F5B83D" stroke-width="2"></line>
-<line x1="180" y1="36" x2="180" y2="44" stroke="#4A556B" stroke-width="1.5"></line>
-<line x1="320" y1="34" x2="320" y2="46" stroke="#4A556B" stroke-width="1.5"></line>
-<line x1="460" y1="36" x2="460" y2="44" stroke="#4A556B" stroke-width="1.5"></line>
-<line x1="600" y1="32" x2="600" y2="48" stroke="#5AB8F5" stroke-width="2"></line>
-<text x="40" y="66" text-anchor="middle" fill="#F5B83D" font-size="11">0 · A</text>
-<text x="180" y="66" text-anchor="middle" fill="#8C97AB" font-size="11">0.25</text>
-<text x="320" y="66" text-anchor="middle" fill="#8C97AB" font-size="11">0.5</text>
-<text x="460" y="66" text-anchor="middle" fill="#8C97AB" font-size="11">0.75</text>
-<text x="600" y="66" text-anchor="middle" fill="#5AB8F5" font-size="11">1 · B</text>
-<line x1="40" y1="40" x2="{{r.stripX}}" y2="40" stroke="#5EE0A8" stroke-width="8" stroke-linecap="round"></line>
-<circle cx="{{r.stripX}}" cy="40" r="7" fill="#F06FB0" stroke="#F2F4F8" stroke-width="2"></circle>
-<text x="{{r.stripLabelX}}" y="20" text-anchor="middle" fill="#5EE0A8" font-size="14" font-weight="600">t = {{r.t}}</text>
-</svg>
-</sc-if>
 <sc-if value="{{is.perlin}}" hint-placeholder-val="{{false}}">
 <svg viewBox="0 0 640 76" role="img" aria-label="One-dimensional slice of the noise along the probe row" style="width: 100%; height: auto; display: block; font-family: 'JetBrains Mono', monospace">
 <rect x="0" y="0" width="640" height="76" rx="10" fill="#0B0F16"></rect>
@@ -195,7 +158,7 @@ n = v / |v| = (vx / |v|, vy / |v|)
 <div style="display: flex; flex-direction: column; gap: 8px">
 <p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Vectors · 03 · Dot product</p>
 <h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">How much do two vectors agree?</h2>
-<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">The dot product multiplies matching components and adds them up. Here A and B are normalized (length 1, on the dashed unit circle), so the dot product is exactly cos θ: the length of B’s shadow on A, where the dashed line meets A’s line. The scale below the graph shows the result, green when positive and pink when negative. Positive means they point the same way, zero means perpendicular, negative means opposed.</p>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">The dot product multiplies matching components and adds them up. Here A and B are normalized (length 1, on the dashed unit circle), so the dot product is exactly cos θ: the length of B’s shadow on A, where the dashed line meets A’s line. The cos θ bar in this panel shows the result, green when positive and pink when negative. Positive means they point the same way, zero means perpendicular, negative means opposed.</p>
 </div>
 <div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">A · B = Ax·Bx + Ay·By
 A · B = |A| |B| cos θ
@@ -307,7 +270,7 @@ slerp(A, B, t) = sin((1 − t)Ω) / sin Ω · A
 <div style="display: flex; flex-direction: column; gap: 8px">
 <p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Vectors · 06 · Inverse lerp</p>
 <h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Given a point, how far along is it?</h2>
-<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Inverse lerp undoes lerp. Lerp takes a fraction t and gives you a point between A and B; inverse lerp takes the point V and gives you back t, from 0 at A to 1 at B. Drag the ends to reshape the line, then drag the pink handle along it and watch t on the scale below.</p>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Inverse lerp undoes lerp. Lerp takes a fraction t and gives you a point between A and B; inverse lerp takes the point V and gives you back t, from 0 at A to 1 at B. Drag the ends to reshape the line, then drag the pink handle along it and watch t change from 0 to 1.</p>
 </div>
 <div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">t = invLerp(A, B, V)
   = |V − A| / |B − A|
@@ -321,6 +284,19 @@ lerp(A, B, invLerp(A, B, V)) = V</div>
 <div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">|V − A| / |B − A|</span><span style="font-family: 'JetBrains Mono', monospace; color: #B4BDCC">{{r.ratio}}</span></div>
 <div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Inverse lerp t</span><span style="font-family: 'JetBrains Mono', monospace; color: #5EE0A8; font-weight: 600">{{r.t}}</span></div>
 <div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">Same with x only: invLerp(Ax, Bx, Vx)</span><span style="font-family: 'JetBrains Mono', monospace; color: #B4BDCC; text-align: right">{{r.oneD}}</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 14px; font-weight: 600; color: #E6EAF2">Color example</span>
+<span style="font-size: 13px; line-height: 1.5; color: #A3ADBF">V’s color is a lerp from amber (A) to blue (B). Inverse lerp on any one RGB channel recovers the same t.</span>
+<div style="position: relative; height: 36px; border-radius: 8px; background: linear-gradient(90deg, #F5B83D, #5AB8F5)">
+<div style="position: absolute; top: -4px; left: {{r.pct}}%; width: 4px; height: 44px; margin-left: -2px; border-radius: 2px; background: #F2F4F8"></div>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #F2F4F8"><span style="width: 22px; height: 22px; border-radius: 6px; border: 1px solid #2E3748; background: {{r.color}}"></span><span>V = {{r.color}}</span></div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Red: invLerp(245, 90, Vr)</span><span style="font-family: 'JetBrains Mono', monospace; color: #B4BDCC; text-align: right">{{r.redCalc}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Blue: invLerp(61, 245, Vb)</span><span style="font-family: 'JetBrains Mono', monospace; color: #B4BDCC; text-align: right">{{r.blueCalc}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">Green: invLerp(184, 184, Vg)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F7B6D3; text-align: right">undefined, a = b</span></div>
+</div>
 </div>
 <p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> turning distance into a fade-out amount, progress along a path or timeline, mapping a joystick dead zone, and remapping one range onto another.</p>
 </div>
@@ -881,15 +857,19 @@ class Component extends DCLogic {
       this.L(sc, { x: q.x - nx * 7, y: q.y + ny * 7 }, { x: q.x + nx * 7, y: q.y - ny * 7 }, '#8C97AB', 2, 0.9);
       this.Tx(sc, { x: q.x - nx * 22, y: q.y + ny * 22 + 4 }, String(k), '#8C97AB', 10, 'middle', 400);
     });
-    this.Tx(sc, { x: sA.x - nx * 26, y: sA.y + ny * 26 + 4 }, 'A  t = 0', C.A, 13);
-    this.Tx(sc, { x: sB.x - nx * 26, y: sB.y + ny * 26 + 4 }, 'B  t = 1', C.B, 13);
-    this.Tx(sc, { x: sV.x + nx * 30, y: sV.y - ny * 30 + 4 }, 'V  t = ' + t.toFixed(2), C.R, 14);
+    this.Tx(sc, { x: sA.x - nx * 26, y: sA.y + ny * 26 + 4 }, 'A ' + this.vs(A), C.A, 13);
+    this.Tx(sc, { x: sB.x - nx * 26, y: sB.y + ny * 26 + 4 }, 'B ' + this.vs(B), C.B, 13);
+    this.Tx(sc, { x: sV.x + nx * 30, y: sV.y - ny * 30 + 4 }, 'V ' + this.vs(V), C.R, 14);
     this.H(sc, sA, 'invPA', C.A);
     this.H(sc, sB, 'invPB', C.B);
     this.H(sc, sV, 'invPV', C.R);
     const dVA = Math.hypot(V.x - A.x, V.y - A.y), dBA = Math.hypot(dx, dy);
     const oneD = Math.abs(dx) > 0.05 ? '(' + this.f2(V.x) + ' − ' + this.f2(A.x) + ') / (' + this.f2(B.x) + ' − ' + this.f2(A.x) + ') = ' + ((V.x - A.x) / dx).toFixed(2) : 'undefined (Ax = Bx)';
+    const c0 = [245, 184, 61], c1 = [90, 184, 245], vc = c0.map((c, i) => Math.round(c + (c1[i] - c) * t)), hx = (n) => n.toString(16).padStart(2, '0');
     const sx = 40 + t * 560;
+    Object.assign(r, { color: '#' + vc.map(hx).join('').toUpperCase(), pct: (t * 100).toFixed(1),
+      redCalc: '(' + vc[0] + ' − 245) / (90 − 245) = ' + ((vc[0] - 245) / (90 - 245)).toFixed(2),
+      blueCalc: '(' + vc[2] + ' − 61) / (245 − 61) = ' + ((vc[2] - 61) / (245 - 61)).toFixed(2) });
     Object.assign(r, { A: this.vs(A), B: this.vs(B), V: this.vs(V), t: t.toFixed(2), tVal: t,
       ratio: this.f2(dVA) + ' / ' + this.f2(dBA), oneD, stripX: this.r1(sx), stripLabelX: this.r1(Math.max(70, Math.min(570, sx))),
       hint: 'Drag A and B, then slide V along the line', title: 't = invLerp(A, B, V)' });
