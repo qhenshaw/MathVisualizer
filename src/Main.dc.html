@@ -90,6 +90,25 @@ button:focus-visible{outline:2px solid #F06FB0;outline-offset:2px}
 <text x="{{r.outX}}" y="20" text-anchor="middle" fill="{{r.barColor}}" font-size="14" font-weight="600">A · B = {{r.dot}}</text>
 </svg>
 </sc-if>
+<sc-if value="{{is.inv}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 640 76" role="img" aria-label="Inverse lerp result on a scale from 0 to 1" style="width: 100%; height: auto; display: block; font-family: 'JetBrains Mono', monospace">
+<rect x="0" y="0" width="640" height="76" rx="10" fill="#0B0F16"></rect>
+<line x1="40" y1="40" x2="600" y2="40" stroke="#2E3748" stroke-width="2"></line>
+<line x1="40" y1="32" x2="40" y2="48" stroke="#F5B83D" stroke-width="2"></line>
+<line x1="180" y1="36" x2="180" y2="44" stroke="#4A556B" stroke-width="1.5"></line>
+<line x1="320" y1="34" x2="320" y2="46" stroke="#4A556B" stroke-width="1.5"></line>
+<line x1="460" y1="36" x2="460" y2="44" stroke="#4A556B" stroke-width="1.5"></line>
+<line x1="600" y1="32" x2="600" y2="48" stroke="#5AB8F5" stroke-width="2"></line>
+<text x="40" y="66" text-anchor="middle" fill="#F5B83D" font-size="11">0 · A</text>
+<text x="180" y="66" text-anchor="middle" fill="#8C97AB" font-size="11">0.25</text>
+<text x="320" y="66" text-anchor="middle" fill="#8C97AB" font-size="11">0.5</text>
+<text x="460" y="66" text-anchor="middle" fill="#8C97AB" font-size="11">0.75</text>
+<text x="600" y="66" text-anchor="middle" fill="#5AB8F5" font-size="11">1 · B</text>
+<line x1="40" y1="40" x2="{{r.stripX}}" y2="40" stroke="#5EE0A8" stroke-width="8" stroke-linecap="round"></line>
+<circle cx="{{r.stripX}}" cy="40" r="7" fill="#F06FB0" stroke="#F2F4F8" stroke-width="2"></circle>
+<text x="{{r.stripLabelX}}" y="20" text-anchor="middle" fill="#5EE0A8" font-size="14" font-weight="600">t = {{r.t}}</text>
+</svg>
+</sc-if>
 </section>
 
 <aside aria-label="Explanation" style="flex: 2 1 340px; min-width: 0; background: #131824; border: 1px solid #232B3A; border-radius: 16px; padding: 24px; box-sizing: border-box">
@@ -258,21 +277,23 @@ slerp(A, B, t) = sin((1 − t)Ω) / sin Ω · A
 <div style="display: flex; flex-direction: column; gap: 18px">
 <div style="display: flex; flex-direction: column; gap: 8px">
 <p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">07 · Inverse lerp</p>
-<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Given a value, how far along the range is it?</h2>
-<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Inverse lerp undoes lerp: it turns a value v back into the fraction t between a and b. Feed that t into a lerp over a different range and you have a remap, which is just a straight line through (a, c) and (b, d). Drag a, b and v along the bottom axis and c, d along the side axis. When v leaves [a, b], t leaves [0, 1] and you slide onto the dashed extension.</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Given a point, how far along is it?</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Inverse lerp undoes lerp. Lerp takes a fraction t and gives you a point between A and B; inverse lerp takes the point V and gives you back t, from 0 at A to 1 at B. Drag the ends to reshape the line, then drag the pink handle along it and watch t on the scale below.</p>
 </div>
-<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">t = invLerp(a, b, v) = (v − a) / (b − a)
-remap(v) = lerp(c, d, invLerp(a, b, v))</div>
-<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Value v</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0">{{r.v}}</span></span><input type="range" min="0" max="100" step="1" value="{{r.vVal}}" onChange="{{set.invV}}"></label>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">t = invLerp(A, B, V)
+  = |V − A| / |B − A|
+1D:  t = (v − a) / (b − a)
+lerp(A, B, invLerp(A, B, V)) = V</div>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Position of V</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0">{{r.t}}</span></span><input type="range" min="0" max="1" step="0.01" value="{{r.tVal}}" onChange="{{set.invT}}"></label>
 <div style="display: flex; flex-direction: column">
-<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Input range [a, b]</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D">{{r.ab}}</span></div>
-<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">t</span><span style="font-family: 'JetBrains Mono', monospace; color: #B4BDCC; text-align: right">{{r.expr}}</span></div>
-<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">= t</span><span style="font-family: 'JetBrains Mono', monospace; color: #5EE0A8; font-weight: 600">{{r.t}}</span></div>
-<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Output range [c, d]</span><span style="font-family: 'JetBrains Mono', monospace; color: #5AB8F5">{{r.cd}}</span></div>
-<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">remap(v)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0; font-weight: 600">{{r.out}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">A (t = 0)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D">{{r.A}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">B (t = 1)</span><span style="font-family: 'JetBrains Mono', monospace; color: #5AB8F5">{{r.B}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">V</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0">{{r.V}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">|V − A| / |B − A|</span><span style="font-family: 'JetBrains Mono', monospace; color: #B4BDCC">{{r.ratio}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Inverse lerp t</span><span style="font-family: 'JetBrains Mono', monospace; color: #5EE0A8; font-weight: 600">{{r.t}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">Same with x only: invLerp(Ax, Bx, Vx)</span><span style="font-family: 'JetBrains Mono', monospace; color: #B4BDCC; text-align: right">{{r.oneD}}</span></div>
 </div>
-<p style="margin: 0; padding: 12px 14px; border-radius: 10px; background: {{r.noteBg}}; color: {{r.noteFg}}; font-size: 14px; line-height: 1.5">{{r.note}}</p>
-<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> turning distance into fade-out amount, mapping a joystick dead zone, converting a value into a progress bar or a color ramp.</p>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> turning distance into a fade-out amount, progress along a path or timeline, mapping a joystick dead zone, and remapping one range onto another.</p>
 </div>
 </sc-if>
 
@@ -359,7 +380,7 @@ class Component extends DCLogic {
       gYaw: 30, gPitch: 20, gRoll: 0,
       lerpA: { x: -5, y: -2.5 }, lerpB: { x: 4.5, y: 3 }, lerpT: 0.3, lerpDir: 1, lerpEase: 'linear',
       slerpA: 0.3, slerpB: 2.5, slerpT: 0, slerpDir: 1,
-      invA: 20, invB: 80, invV: 50, invC: 10, invD: 90, invDir: 1,
+      invPA: { x: -5, y: -2.5 }, invPB: { x: 5, y: 2.5 }, invT: 0.35, invDir: 1,
       qYaw: 35, qPitch: 50, qAngle: 0
     };
   }
@@ -396,15 +417,7 @@ class Component extends DCLogic {
     if (t === 'gimbal') return { gRoll: ((s.gRoll + 40 * k + 180) % 360 + 360) % 360 - 180 };
     if (t === 'lerp') { const b = this.bounce(s.lerpT, s.lerpDir, 0.28 * k, 0, 1); return { lerpT: b[0], lerpDir: b[1] }; }
     if (t === 'slerp') { const b = this.bounce(s.slerpT, s.slerpDir, 0.3 * k, 0, 1); return { slerpT: b[0], slerpDir: b[1] }; }
-    if (t === 'inv') {
-      const span = s.invB - s.invA;
-      if (Math.abs(span) < 1e-6) return null;
-      const b = this.bounce((s.invV - s.invA) / span, s.invDir, 0.25 * k, -0.25, 1.25);
-      let v = s.invA + span * b[0], d = b[1];
-      if (v <= 0) { v = 0; d = span > 0 ? 1 : -1; }
-      if (v >= 100) { v = 100; d = span > 0 ? -1 : 1; }
-      return { invV: v, invDir: d };
-    }
+    if (t === 'inv') { const b = this.bounce(s.invT, s.invDir, 0.25 * k, 0, 1); return { invT: b[0], invDir: b[1] }; }
     if (t === 'quat') return { qAngle: (s.qAngle + 45 * k) % 720 };
     return null;
   }
@@ -412,7 +425,7 @@ class Component extends DCLogic {
   view(t) {
     return {
       dir: { S: 40, ox: 320, oy: 240 }, norm: { S: 80, ox: 320, oy: 240 }, dot: { S: 160, ox: 320, oy: 245 },
-      lerp: { S: 40, ox: 320, oy: 240 }, slerp: { S: 170, ox: 320, oy: 240 }
+      lerp: { S: 40, ox: 320, oy: 240 }, inv: { S: 40, ox: 320, oy: 240 }, slerp: { S: 170, ox: 320, oy: 240 }
     }[t];
   }
 
@@ -429,11 +442,6 @@ class Component extends DCLogic {
     const sx = Math.max(8, Math.min(632, (e.clientX - rc.left) / rc.width * 640));
     const sy = Math.max(8, Math.min(472, (e.clientY - rc.top) / rc.height * 480));
     const t = this.topicOf();
-    if (t === 'inv') {
-      const raw = key === 'invC' || key === 'invD' ? (420 - sy) / 3.8 : (sx - 80) / 5.2;
-      this.setState({ [key]: Math.max(0, Math.min(100, Math.round(raw))) });
-      return;
-    }
     if (t === 'cross') {
       const cur = this.state[key], yaw = this.state.crossYaw, pit = 0.42, S = 130;
       const x1 = (sx - 320) / S, up = (270 - sy) / S, y1 = (up - cur[2] * Math.cos(pit)) / Math.sin(pit);
@@ -445,6 +453,11 @@ class Component extends DCLogic {
     const v = this.view(t);
     if (!v) return;
     const p = { x: (sx - v.ox) / v.S, y: (v.oy - sy) / v.S };
+    if (key === 'invPV') {
+      const A = this.state.invPA, B = this.state.invPB, dx = B.x - A.x, dy = B.y - A.y, L2 = dx * dx + dy * dy;
+      if (L2 > 1e-6) this.setState({ invT: Math.max(0, Math.min(1, ((p.x - A.x) * dx + (p.y - A.y) * dy) / L2)) });
+      return;
+    }
     if (key === 'dotA' || key === 'dotB') { const l = Math.hypot(p.x, p.y); if (l > 1e-3) this.setState({ [key]: { x: p.x / l, y: p.y / l } }); return; }
     if (key === 'slerpA' || key === 'slerpB') { this.setState({ [key]: Math.atan2(p.y, p.x) }); return; }
     this.setState({ [key]: { x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10 } });
@@ -699,63 +712,30 @@ class Component extends DCLogic {
   }
 
   sceneInv(sc, r) {
-    const s = this.state, C = this.C, a = s.invA, b = s.invB, val = s.invV, c = s.invC, dd = s.invD;
-    const X = (n) => 80 + n * 5.2, Y = (n) => 420 - n * 3.8;
-    const span = b - a, ok = Math.abs(span) > 1e-6, t = ok ? (val - a) / span : 0, out = c + (dd - c) * t;
-    const lo = Math.min(a, b), hi = Math.max(a, b), clo = Math.min(c, dd), chi = Math.max(c, dd);
-    this.Po(sc, [{ x: X(lo), y: 40 }, { x: X(hi), y: 40 }, { x: X(hi), y: 420 }, { x: X(lo), y: 420 }], C.A, 0.07);
-    this.Po(sc, [{ x: 80, y: Y(chi) }, { x: 600, y: Y(chi) }, { x: 600, y: Y(clo) }, { x: 80, y: Y(clo) }], C.B, 0.07);
-    const show = this.props.showGrid ?? true;
-    for (let n = 0; n <= 100; n += 10) {
-      if (n === 0 || show) {
-        sc.grid.push({ x1: X(n), y1: 40, x2: X(n), y2: 420, stroke: n === 0 ? C.axis : C.grid, sw: n === 0 ? 1.5 : 1 });
-        sc.grid.push({ x1: 80, y1: Y(n), x2: 600, y2: Y(n), stroke: n === 0 ? C.axis : C.grid, sw: n === 0 ? 1.5 : 1 });
-      }
-      this.Tx(sc, { x: X(n), y: 442 }, String(n), '#758199', 10, 'middle', 400);
-      this.Tx(sc, { x: 70, y: Y(n) + 4 }, String(n), '#758199', 10, 'end', 400);
-    }
-    this.Tx(sc, { x: 600, y: 468 }, 'input v →', '#A3ADBF', 11, 'end', 500);
-    this.Tx(sc, { x: 80, y: 26 }, '↑ output', '#A3ADBF', 11, 'start', 500);
-    if (ok) {
-      const f = (n) => c + (dd - c) * (n - a) / span;
-      const seg = this.clipBox({ x: X(0), y: Y(f(0)) }, { x: X(100), y: Y(f(100)) }, 80, 40, 600, 420);
-      if (seg) this.L(sc, seg[0], seg[1], C.U, 2, 0.55, '6 6');
-      const p0 = { x: X(a), y: Y(c) }, p1 = { x: X(b), y: Y(dd) };
-      this.L(sc, { x: X(a), y: 420 }, p0, C.A, 1.5, 0.6, '2 5');
-      this.L(sc, { x: X(b), y: 420 }, p1, C.A, 1.5, 0.6, '2 5');
-      this.L(sc, { x: 80, y: Y(c) }, p0, C.B, 1.5, 0.6, '2 5');
-      this.L(sc, { x: 80, y: Y(dd) }, p1, C.B, 1.5, 0.6, '2 5');
-      this.L(sc, p0, p1, C.U, 5, 0.95);
-      [0.25, 0.5, 0.75].forEach((k) => this.Dot(sc, { x: p0.x + (p1.x - p0.x) * k, y: p0.y + (p1.y - p0.y) * k }, 3.5, '#0B0F16', C.U, 2));
-      this.Dot(sc, p0, 5.5, C.U);
-      this.Dot(sc, p1, 5.5, C.U);
-      this.Tx(sc, { x: p0.x - 10, y: p0.y - 12 }, 't = 0', C.U, 11, 'end', 500);
-      this.Tx(sc, { x: p1.x + 10, y: p1.y - 12 }, 't = 1', C.U, 11, 'start', 500);
-      const pt = { x: X(val), y: Math.max(40, Math.min(420, Y(out))) };
-      this.L(sc, { x: X(val), y: 420 }, pt, C.R, 2, 0.95, '5 5');
-      this.L(sc, pt, { x: 80, y: pt.y }, C.R, 2, 0.95, '5 5');
-      this.Dot(sc, pt, 8, C.R, '#F2F4F8', 2.5);
-      this.Dot(sc, { x: 80, y: pt.y }, 6, C.R, '#0B0F16', 2);
-      this.Tx(sc, { x: pt.x + 14, y: pt.y - 12 }, 't = ' + t.toFixed(2), C.R, 13, 'start');
-      this.Tx(sc, { x: 92, y: pt.y - 10 }, 'out ' + out.toFixed(1), C.R, 12, 'start');
-    }
-    this.Tx(sc, { x: X(a), y: 402 }, 'a', C.A, 12);
-    this.Tx(sc, { x: X(b), y: 402 }, 'b', C.A, 12);
-    this.Tx(sc, { x: X(val), y: 402 }, 'v', C.R, 12);
-    this.Tx(sc, { x: 104, y: Y(c) + 18 }, 'c', C.B, 12, 'start');
-    this.Tx(sc, { x: 104, y: Y(dd) + 18 }, 'd', C.B, 12, 'start');
-    this.H(sc, { x: X(a), y: 420 }, 'invA', C.A);
-    this.H(sc, { x: X(b), y: 420 }, 'invB', C.A);
-    this.H(sc, { x: 80, y: Y(c) }, 'invC', C.B);
-    this.H(sc, { x: 80, y: Y(dd) }, 'invD', C.B);
-    this.H(sc, { x: X(val), y: 420 }, 'invV', C.R);
-    const inside = t >= 0 && t <= 1;
-    const vv = Math.round(val);
-    Object.assign(r, { v: String(vv), vVal: vv, ab: '[' + a + ', ' + b + ']', cd: '[' + c + ', ' + dd + ']',
-      expr: '(' + vv + ' − ' + a + ') / (' + b + ' − ' + a + ')', t: ok ? t.toFixed(3) : 'undefined', out: ok ? out.toFixed(2) : '—',
-      note: !ok ? 'a equals b, so the range has zero width and t is undefined (division by zero).' : (inside ? 'v is inside [a, b], so t lands between 0 and 1.' : 'v is outside [a, b], so t is ' + (t < 0 ? 'below 0' : 'above 1') + ' and the remap extrapolates. Clamp t to [0, 1] if you need to stay in range.'),
-      noteBg: ok && inside ? '#14251F' : '#2A1A22', noteFg: ok && inside ? '#A7F0CF' : '#F7B6D3',
-      hint: 'Drag a, b, v on the x-axis · c, d on the y-axis', title: 'remap = lerp(c, d, invLerp(a, b, v))' });
+    const s = this.state, v = this.view('inv'), C = this.C, A = s.invPA, B = s.invPB, t = s.invT;
+    const at = (x) => ({ x: A.x + (B.x - A.x) * x, y: A.y + (B.y - A.y) * x }), V = at(t);
+    const sA = this.toS(A, v), sB = this.toS(B, v), sV = this.toS(V, v);
+    const dx = B.x - A.x, dy = B.y - A.y, len = Math.hypot(dx, dy) || 1, nx = -dy / len, ny = dx / len;
+    this.grid2D(sc, v);
+    this.L(sc, sA, sB, '#4A556B', 4, 1);
+    this.L(sc, sA, sV, C.U, 6, 0.95);
+    [0.25, 0.5, 0.75].forEach((k) => {
+      const q = this.toS(at(k), v);
+      this.L(sc, { x: q.x - nx * 7, y: q.y + ny * 7 }, { x: q.x + nx * 7, y: q.y - ny * 7 }, '#8C97AB', 2, 0.9);
+      this.Tx(sc, { x: q.x - nx * 22, y: q.y + ny * 22 + 4 }, String(k), '#8C97AB', 10, 'middle', 400);
+    });
+    this.Tx(sc, { x: sA.x - nx * 26, y: sA.y + ny * 26 + 4 }, 'A  t = 0', C.A, 13);
+    this.Tx(sc, { x: sB.x - nx * 26, y: sB.y + ny * 26 + 4 }, 'B  t = 1', C.B, 13);
+    this.Tx(sc, { x: sV.x + nx * 30, y: sV.y - ny * 30 + 4 }, 'V  t = ' + t.toFixed(2), C.R, 14);
+    this.H(sc, sA, 'invPA', C.A);
+    this.H(sc, sB, 'invPB', C.B);
+    this.H(sc, sV, 'invPV', C.R);
+    const dVA = Math.hypot(V.x - A.x, V.y - A.y), dBA = Math.hypot(dx, dy);
+    const oneD = Math.abs(dx) > 0.05 ? '(' + this.f2(V.x) + ' − ' + this.f2(A.x) + ') / (' + this.f2(B.x) + ' − ' + this.f2(A.x) + ') = ' + ((V.x - A.x) / dx).toFixed(2) : 'undefined (Ax = Bx)';
+    const sx = 40 + t * 560;
+    Object.assign(r, { A: this.vs(A), B: this.vs(B), V: this.vs(V), t: t.toFixed(2), tVal: t,
+      ratio: this.f2(dVA) + ' / ' + this.f2(dBA), oneD, stripX: this.r1(sx), stripLabelX: this.r1(Math.max(70, Math.min(570, sx))),
+      hint: 'Drag A and B, then slide V along the line', title: 't = invLerp(A, B, V)' });
   }
 
   clipBox(p, q, x0, y0, x1, y1) {
@@ -893,7 +873,7 @@ class Component extends DCLogic {
       easeSmooth: () => this.setState({ lerpEase: 'smooth' }),
       toggleLock: () => this.setState({ gPitch: gLocked ? 20 : 90 }),
       set: { crossAz: setZ('crossA'), crossBz: setZ('crossB'), crossYaw: (e) => this.setState({ crossYaw: parseFloat(e.target.value) * Math.PI / 180 }),
-        gYaw: num('gYaw'), gPitch: num('gPitch'), gRoll: numPause('gRoll'), lerpT: numPause('lerpT'), slerpT: numPause('slerpT'), invV: numPause('invV'), qAngle: numPause('qAngle'), qYaw: num('qYaw'), qPitch: num('qPitch') }
+        gYaw: num('gYaw'), gPitch: num('gPitch'), gRoll: numPause('gRoll'), lerpT: numPause('lerpT'), slerpT: numPause('slerpT'), invT: numPause('invT'), qAngle: numPause('qAngle'), qYaw: num('qYaw'), qPitch: num('qPitch') }
     };
   }
 }
