@@ -1,6 +1,6 @@
 # Vector Lab — MathVisualizer
 
-An interactive, animated explainer for the math behind games, shaders and animation rigs: vectors, rotations, waves, noise and easing.
+An interactive, animated explainer for the math behind games, shaders and animation rigs: vectors, rotations, waves, noise, easing and physics.
 
 **Live:** https://qhenshaw.github.io/MathVisualizer/
 
@@ -27,6 +27,10 @@ An interactive, animated explainer for the math behind games, shaders and animat
 | 02 | Sine & Expo | The gentlest and the most dramatic standard curves |
 | 03 | Back & Elastic | Curves that overshoot or spring outside 0 … 1 |
 | 04 | Bounce | Shrinking parabolic hops, like a ball landing |
+| | **Physics** | |
+| 01 | Acceleration & impulse | Constant force vs instant kicks on a cart, with a live velocity graph |
+| 02 | Linear & angular drag | A sliding puck and a spinning wheel decaying exponentially |
+| 03 | Springs | Drag a mass on a damped spring; stiffness, damping, mass and ζ |
 
 ## Embedding
 
@@ -37,7 +41,7 @@ An interactive, animated explainer for the math behind games, shaders and animat
 
 URL options:
 
-- `?topic=dot` opens on a tab, and its category (`dir`, `norm`, `dot`, `cross`, `lerp`, `inv`, `quat`, `gimbal`, `slerp`, `sine`, `saw`, `perlin`, `voronoi`, `easePoly`, `easeSine`, `easeBack`, `easeBounce`)
+- `?topic=dot` opens on a tab, and its category (`dir`, `norm`, `dot`, `cross`, `lerp`, `inv`, `quat`, `gimbal`, `slerp`, `sine`, `saw`, `perlin`, `voronoi`, `easePoly`, `easeSine`, `easeBack`, `easeBounce`, `physAccel`, `physDrag`, `physSpring`)
 - `?speed=0.5` changes the animation speed
 - `?grid=0` hides the background grid
 

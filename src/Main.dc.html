@@ -510,12 +510,90 @@ edges = F2 − F1</div>
 <p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> UI transitions, camera moves, tweened animation, menus sliding in, jumps and landings, and general game feel.</p>
 </div>
 </sc-if>
+<sc-if value="{{is.physAccel}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Physics · 01 · Acceleration &amp; impulse</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Forces change velocity; impulses change it instantly</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">A constant force F gives the cart a constant acceleration a = F / m, so its velocity changes at a steady rate: a straight slope on the graph. An impulse J is a force packed into a single instant, so velocity jumps by J / m with no slope at all. The walls bounce the cart by applying an impulse of their own. Heavier carts respond less to both.</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">a = F / m
+v ← v + a · Δt
+x ← x + v · Δt
+impulse:  v ← v + J / m</div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Force F</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D">{{r.F}}</span></span><input type="range" min="-5" max="5" step="0.5" value="{{r.FVal}}" onChange="{{set.paF}}"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Mass m</span><span style="font-family: 'JetBrains Mono', monospace; color: #E6EAF2">{{r.m}}</span></span><input type="range" min="0.5" max="5" step="0.5" value="{{r.mVal}}" onChange="{{set.paM}}"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Impulse size J</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0">{{r.J}}</span></span><input type="range" min="1" max="10" step="1" value="{{r.JVal}}" onChange="{{set.paJ}}"></label>
+<div style="display: flex; gap: 8px; flex-wrap: wrap"><button type="button" onClick="{{impulseL}}" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #2E3748; background: #1A2030; color: #E6EAF2; font-size: 14px; font-weight: 600; cursor: pointer">← Impulse</button><button type="button" onClick="{{impulseR}}" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #2E3748; background: #1A2030; color: #E6EAF2; font-size: 14px; font-weight: 600; cursor: pointer">Impulse →</button><button type="button" onClick="{{stopCart}}" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #2E3748; background: #1A2030; color: #E6EAF2; font-size: 14px; font-weight: 600; cursor: pointer">Stop</button></div>
+</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Acceleration a = F / m</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D; text-align: right">{{r.a}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Velocity v</span><span style="font-family: 'JetBrains Mono', monospace; color: #5AB8F5; text-align: right; font-weight: 600">{{r.v}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Momentum p = m · v</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.p}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">Velocity jump per impulse J / m</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0; text-align: right">{{r.dv}}</span></div>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> gravity and thrusters (AddForce every frame), jumps, explosions, hits and knockback (one-off impulses), and character controllers.</p>
+</div>
+</sc-if>
+<sc-if value="{{is.physDrag}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Physics · 02 · Linear &amp; angular drag</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Everything slows down by a fraction per second</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">Drag removes a fixed fraction of speed every second, so motion fades out smoothly instead of stopping dead: an exponential decay. Linear drag slows sliding (the puck), angular drag slows spinning (the wheel); they work the same way on different quantities. The graph shows both speeds falling away. Higher drag, faster fade.</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">v ← v · e^(−k · Δt)
+   ≈ v − k · v · Δt  (per frame)
+ω ← ω · e^(−k_ang · Δt)
+half-life = ln 2 / k</div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Linear drag k</span><span style="font-family: 'JetBrains Mono', monospace; color: #5AB8F5">{{r.k}}</span></span><input type="range" min="0" max="3" step="0.1" value="{{r.kVal}}" onChange="{{set.dK}}"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Angular drag k_ang</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0">{{r.ka}}</span></span><input type="range" min="0" max="3" step="0.1" value="{{r.kaVal}}" onChange="{{set.dKa}}"></label>
+<div style="display: flex; gap: 8px; flex-wrap: wrap"><button type="button" onClick="{{pushPuck}}" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #2E3748; background: #1A2030; color: #E6EAF2; font-size: 14px; font-weight: 600; cursor: pointer">Push puck</button><button type="button" onClick="{{spinWheel}}" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #2E3748; background: #1A2030; color: #E6EAF2; font-size: 14px; font-weight: 600; cursor: pointer">Spin wheel</button></div>
+</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Puck speed |v|</span><span style="font-family: 'JetBrains Mono', monospace; color: #5AB8F5; text-align: right; font-weight: 600">{{r.v}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Wheel spin |ω|</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0; text-align: right; font-weight: 600">{{r.w}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Speed kept per second</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.keep}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">Half-life (linear / angular)</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.half}}</span></div>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> air resistance and rolling friction, space-ship coasting, settling a spinning object, and smoothing player input. (In Unity these are Rigidbody drag and angular drag.)</p>
+</div>
+</sc-if>
+<sc-if value="{{is.physSpring}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<p style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #F06FB0">Physics · 03 · Springs</p>
+<h2 style="margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: -0.01em; color: #F2F4F8">Pulled back toward rest, harder the further you go</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #B4BDCC">A spring pushes back in proportion to how far it is stretched (Hooke’s law), so the mass overshoots and oscillates. Damping removes energy in proportion to velocity, shrinking the swings. The damping ratio ζ decides the character: below 1 it bounces, exactly 1 (critical) it returns as fast as possible without overshooting, above 1 it creeps back slowly. Drag the mass and let go.</p>
+</div>
+<div style="margin: 0; padding: 14px 16px; background: #0B0F16; border: 1px solid #232B3A; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.75; color: #E6EAF2; white-space: pre-line">F = −k · x − c · v
+a = F / m
+ω₀ = √(k / m),  T = 2π / ω₀
+ζ = c / (2 √(k · m))</div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Stiffness k</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D">{{r.k}}</span></span><input type="range" min="1" max="60" step="1" value="{{r.kVal}}" onChange="{{set.spK}}"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Damping c</span><span style="font-family: 'JetBrains Mono', monospace; color: #5AB8F5">{{r.c}}</span></span><input type="range" min="0" max="20" step="0.1" value="{{r.cVal}}" onChange="{{set.spC}}"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #A3ADBF"><span style="display: flex; justify-content: space-between"><span>Mass m</span><span style="font-family: 'JetBrains Mono', monospace; color: #E6EAF2">{{r.m}}</span></span><input type="range" min="0.2" max="5" step="0.1" value="{{r.mVal}}" onChange="{{set.spM}}"></label>
+<div style="display: flex; gap: 8px; flex-wrap: wrap"><button type="button" onClick="{{pullSpring}}" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #2E3748; background: #1A2030; color: #E6EAF2; font-size: 14px; font-weight: 600; cursor: pointer">Pull &amp; release</button><button type="button" onClick="{{critSpring}}" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #2E3748; background: #1A2030; color: #E6EAF2; font-size: 14px; font-weight: 600; cursor: pointer">Set critical damping</button></div>
+</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Displacement x</span><span style="font-family: 'JetBrains Mono', monospace; color: #F06FB0; text-align: right; font-weight: 600">{{r.x}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Spring force F</span><span style="font-family: 'JetBrains Mono', monospace; color: #F5B83D; text-align: right">{{r.F}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Period T</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.T}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1F2635; font-size: 14px"><span style="color: #A3ADBF">Damping ratio ζ</span><span style="font-family: 'JetBrains Mono', monospace; color: #5AB8F5; text-align: right">{{r.z}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14px"><span style="color: #A3ADBF">Behaviour</span><span style="font-family: 'JetBrains Mono', monospace; color: #F2F4F8; text-align: right">{{r.regime}}</span></div>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #A3ADBF"><strong style="color: #E6EAF2; font-weight: 600">Used for</strong> camera follow and UI that settles naturally (SmoothDamp, spring tweens), suspension and ragdoll joints, cloth, hair and jiggle bones.</p>
+</div>
+</sc-if>
 </aside>
 </div>
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"speed":{"editor":"range","min":0.25,"max":2,"step":0.25,"default":1,"section":"Motion"},"showGrid":{"editor":"boolean","default":true,"section":"Stage"},"startTopic":{"editor":"enum","options":["dir","norm","dot","cross","lerp","inv","quat","gimbal","slerp","sine","saw","perlin","voronoi","easePoly","easeSine","easeBack","easeBounce"],"default":"dir","section":"Stage"},"$preview":{"width":1440,"height":1000}}'>
+<script type="text/x-dc" data-dc-script data-props='{"speed":{"editor":"range","min":0.25,"max":2,"step":0.25,"default":1,"section":"Motion"},"showGrid":{"editor":"boolean","default":true,"section":"Stage"},"startTopic":{"editor":"enum","options":["dir","norm","dot","cross","lerp","inv","quat","gimbal","slerp","sine","saw","perlin","voronoi","easePoly","easeSine","easeBack","easeBounce","physAccel","physDrag","physSpring"],"default":"dir","section":"Stage"},"$preview":{"width":1440,"height":1000}}'>
 class Component extends DCLogic {
   C = { A: '#F5B83D', B: '#5AB8F5', R: '#F06FB0', U: '#5EE0A8', muted: '#8C97AB', faint: '#4A556B', text: '#E6EAF2', axis: '#3A4558', grid: '#181F2C' };
 
@@ -537,7 +615,10 @@ class Component extends DCLogic {
       sawX: 0, sawFreq: 1, sawShape: 'saw',
       perlinT: 0, perlinOct: 1, perlinScale: 6, perlinProbe: { x: 300, y: 210 }, perlinArrows: true,
       vorSeeds: this.makeSeeds(), vorT: 0, vorMode: 'cells', vorCount: 12, vorProbe: { x: 420, y: 300 },
-      easeT: 0, easeMode: 'inout', easePolyVar: 'quad', easeSineVar: 'sine', easeBackVar: 'back'
+      easeT: 0, easeMode: 'inout', easePolyVar: 'quad', easeSineVar: 'sine', easeBackVar: 'back',
+      physT: 0, paX: 2, paV: 0, paF: 1.5, paM: 1, paJ: 4, paHist: [],
+      dX: 2, dV: 8, dK: 0.6, dAng: 0, dOm: 9, dKa: 0.4, dHist: [],
+      spY: 1.6, spV: 0, spK: 20, spC: 1, spM: 1, spIdle: 0, spHist: []
     };
   }
 
@@ -584,6 +665,31 @@ class Component extends DCLogic {
     if (t === 'saw') return { sawX: (s.sawX + 0.3 * k) % 4 };
     if (t === 'perlin') return { perlinT: s.perlinT + k };
     if (t === 'voronoi') return { vorT: s.vorT + k };
+    if (t === 'physAccel') {
+      const now = s.physT + k, add = [];
+      let v = s.paV + (s.paF / s.paM) * k, x = s.paX + v * k;
+      if (x > 15.3) { add.push({ t: now, v }); x = 15.3 - (x - 15.3); v = -Math.abs(v); add.push({ t: now, v, wall: true }); }
+      if (x < 0.7) { add.push({ t: now, v }); x = 0.7 + (0.7 - x); v = Math.abs(v); add.push({ t: now, v, wall: true }); }
+      add.push({ t: now, v });
+      return { paV: v, paX: x, physT: now, paHist: this.pushHist(s.paHist, add, now, 9) };
+    }
+    if (t === 'physDrag') {
+      const now = s.physT + k;
+      let v = s.dV * Math.exp(-s.dK * k), om = s.dOm * Math.exp(-s.dKa * k);
+      if (Math.abs(v) < 0.08) v = 8;
+      if (Math.abs(om) < 0.08) om = 9;
+      const x = (((s.dX + v * k) % 16) + 16) % 16;
+      return { dV: v, dOm: om, dX: x, dAng: s.dAng + om * k, physT: now, dHist: this.pushHist(s.dHist, [{ t: now, v: Math.abs(v), w: Math.abs(om) }], now, 7) };
+    }
+    if (t === 'physSpring') {
+      const now = s.physT + k, n = 10, h = k / n;
+      let y = s.spY, v = s.spV;
+      for (let i = 0; i < n; i++) { const F = -s.spK * y - s.spC * v; v += F / s.spM * h; y += v * h; }
+      y = Math.max(-3.2, Math.min(3.2, y));
+      let idle = Math.abs(y) < 0.01 && Math.abs(v) < 0.03 ? s.spIdle + k : 0;
+      if (idle > 1.2) { y = 1.6; v = 0; idle = 0; }
+      return { spY: y, spV: v, spIdle: idle, physT: now, spHist: this.pushHist(s.spHist, [{ t: now, y }], now, 7) };
+    }
     if (t.indexOf('ease') === 0) return { easeT: (s.easeT + 0.5 * k) % 1.5 };
     if (t === 'quat') return { qAngle: (s.qAngle + 45 * k) % 720 };
     return null;
@@ -617,6 +723,7 @@ class Component extends DCLogic {
       this.setState({ [key]: [Math.cos(el) * Math.cos(hd), Math.cos(el) * Math.sin(hd), Math.sin(el)] });
       return;
     }
+    if (key === 'spMass') { this.setState({ spY: Math.max(-3, Math.min(3, (sy - 230) / 60)), spV: 0, spIdle: 0 }); return; }
     if (key === 'perlinProbe' || key === 'vorProbe') { this.setState({ [key]: { x: sx, y: sy } }); return; }
     if (key.indexOf('vorSeed:') === 0) {
       const i = +key.slice(8), st = this.state, q = st.vorSeeds[i];
@@ -1276,17 +1383,123 @@ class Component extends DCLogic {
       hint: 'Pick a direction · the balls replay the motion', title: fname + '(t)' });
   }
 
+  pushHist(h, add, now, win) {
+    let out = h;
+    add.forEach((e) => { if (e.wall || !out.length || e.t - out[out.length - 1].t >= 0.02 || e.imp) out = out.concat([e]); });
+    let i = 0; while (i < out.length && out[i].t < now - win) i++;
+    return i ? out.slice(i) : out;
+  }
+  plotHist(sc, hist, key, now, win, x0, x1, ymid, scale, ylo, yhi, color, sw) {
+    let d = '';
+    hist.forEach((e) => {
+      const x = x1 - (now - e.t) / win * (x1 - x0);
+      if (x < x0) return;
+      const y = Math.max(ylo, Math.min(yhi, ymid - e[key] * scale));
+      d += (d ? ' L' : 'M') + this.r1(x) + ' ' + this.r1(y);
+    });
+    if (d) this.Pa(sc, d, color, sw, 1);
+  }
+  graphFrame(sc, x0, x1, y0, y1, label, zeroY) {
+    this.Po(sc, [{ x: x0, y: y0 }, { x: x1, y: y0 }, { x: x1, y: y1 }, { x: x0, y: y1 }], '#0E131D', 1, '#232B3A', 1);
+    if (zeroY != null) sc.lines.push({ x1: x0, y1: zeroY, x2: x1, y2: zeroY, stroke: '#3A4558', sw: 1.5, op: 1, dash: 'none' });
+    this.Tx(sc, { x: x0 + 10, y: y0 + 18 }, label, '#A3ADBF', 11, 'start', 500);
+    this.Tx(sc, { x: x1 - 8, y: y1 - 8 }, 'now', '#758199', 10, 'end', 400);
+  }
+  applyImpulse(dir) {
+    const s = this.state, nv = Math.max(-15, Math.min(15, s.paV + dir * s.paJ / s.paM));
+    this.setState({ paV: nv, paHist: s.paHist.concat([{ t: s.physT, v: s.paV }, { t: s.physT, v: nv, imp: true }]) });
+  }
+
+  scenePhysAccel(sc, r) {
+    const s = this.state, C = this.C, X = (u) => 40 + u * 35, ty = 140;
+    this.L(sc, { x: 30, y: ty }, { x: 610, y: ty }, '#3A4558', 2);
+    for (let u = 0; u <= 16; u++) this.L(sc, { x: X(u), y: ty }, { x: X(u), y: ty + 6 }, '#2E3748', 1.5);
+    this.Po(sc, [{ x: 24, y: 60 }, { x: 40, y: 60 }, { x: 40, y: ty }, { x: 24, y: ty }], '#2E3748', 1);
+    this.Po(sc, [{ x: 600, y: 60 }, { x: 616, y: 60 }, { x: 616, y: ty }, { x: 600, y: ty }], '#2E3748', 1);
+    const cx = X(s.paX), m = s.paM, w = 34 + m * 6, hgt = 22 + m * 3;
+    this.Po(sc, [{ x: cx - w / 2, y: ty - 10 - hgt }, { x: cx + w / 2, y: ty - 10 - hgt }, { x: cx + w / 2, y: ty - 10 }, { x: cx - w / 2, y: ty - 10 }], '#C9D1E0', 1, '#0B0F16', 2);
+    this.Dot(sc, { x: cx - w / 3, y: ty - 6 }, 6, '#4A556B', '#0B0F16', 2);
+    this.Dot(sc, { x: cx + w / 3, y: ty - 6 }, 6, '#4A556B', '#0B0F16', 2);
+    this.Tx(sc, { x: cx, y: ty - 10 - hgt / 2 + 4 }, m.toFixed(1) + ' kg', '#0E1117', 11, 'middle', 600);
+    if (Math.abs(s.paF) > 0.01) { this.Ar(sc, { x: cx, y: ty - 10 - hgt / 2 }, { x: cx + s.paF * 16 + Math.sign(s.paF) * w / 2, y: ty - 10 - hgt / 2 }, C.A, 4); }
+    if (Math.abs(s.paV) > 0.05) { this.Ar(sc, { x: cx, y: ty - 22 - hgt }, { x: cx + s.paV * 6, y: ty - 22 - hgt }, C.B, 3); this.Tx(sc, { x: cx + s.paV * 6, y: ty - 30 - hgt }, 'v', C.B, 12); }
+    const gx0 = 60, gx1 = 610, gy0 = 200, gy1 = 450, mid = 325, sc1 = 120 / 15;
+    this.graphFrame(sc, gx0, gx1, gy0, gy1, 'velocity v over time', mid);
+    [-10, -5, 5, 10].forEach((v) => { sc.lines.push({ x1: gx0, y1: mid - v * sc1, x2: gx1, y2: mid - v * sc1, stroke: '#1B2230', sw: 1, op: 1, dash: 'none' }); this.Tx(sc, { x: gx0 - 6, y: mid - v * sc1 + 4 }, String(v), '#758199', 10, 'end', 400); });
+    this.Tx(sc, { x: gx0 - 6, y: mid + 4 }, '0', '#758199', 10, 'end', 400);
+    s.paHist.forEach((e) => { if (e.imp || e.wall) { const x = gx1 - (s.physT - e.t) / 9 * (gx1 - gx0); if (x > gx0) { sc.lines.push({ x1: this.r1(x), y1: gy0 + 26, x2: this.r1(x), y2: gy1 - 4, stroke: e.imp ? C.R : '#8C97AB', sw: 1.5, op: 0.6, dash: '3 5' }); this.Tx(sc, { x, y: gy0 + 40 }, e.imp ? 'J' : 'wall', e.imp ? C.R : '#8C97AB', 11, 'middle', 600); } } });
+    this.plotHist(sc, s.paHist, 'v', s.physT, 9, gx0, gx1, mid, sc1, gy0 + 2, gy1 - 2, C.B, 3);
+    this.Tx(sc, { x: gx1 - 10, y: gy0 + 18 }, 'slope = a', C.A, 11, 'end', 500);
+    Object.assign(r, { F: s.paF.toFixed(1) + ' N', FVal: s.paF, m: s.paM.toFixed(1) + ' kg', mVal: s.paM, J: s.paJ.toFixed(0) + ' N·s', JVal: s.paJ,
+      a: (s.paF / s.paM).toFixed(2) + ' m/s²', v: s.paV.toFixed(2) + ' m/s', p: (s.paM * s.paV).toFixed(2) + ' kg·m/s', dv: (s.paJ / s.paM).toFixed(2) + ' m/s',
+      hint: 'Change the force · fire impulses · watch the velocity graph', title: 'a = F / m · Δv = J / m' });
+  }
+
+  scenePhysDrag(sc, r) {
+    const s = this.state, C = this.C, X = (u) => 40 + u * 35, ty = 120;
+    this.L(sc, { x: 30, y: ty + 16 }, { x: 610, y: ty + 16 }, '#3A4558', 2);
+    const px = X(s.dX);
+    this.Dot(sc, { x: px, y: ty }, 16, '#C9D1E0', '#0B0F16', 2);
+    if (Math.abs(s.dV) > 0.05) { this.Ar(sc, { x: px + 18, y: ty }, { x: px + 18 + s.dV * 9, y: ty }, C.B, 3.5); }
+    this.Tx(sc, { x: 40, y: 60 }, 'puck · linear drag', C.B, 12, 'start');
+    const c = { x: 150, y: 320 }, R = 85;
+    this.Ring(sc, c, R, '#C9D1E0', 6);
+    for (let i = 0; i < 6; i++) { const a = s.dAng + i * Math.PI / 3; this.L(sc, c, { x: c.x + R * Math.cos(a), y: c.y - R * Math.sin(a) }, i === 0 ? C.R : '#8C97AB', i === 0 ? 4 : 2.5, 1); }
+    this.Dot(sc, c, 8, '#C9D1E0', '#0B0F16', 2);
+    const sweep = Math.min(2.6, Math.abs(s.dOm) * 0.25);
+    if (sweep > 0.05) { this.Pa(sc, this.arc(c, R + 18, 1.2, 1.2 + sweep), C.R, 3, 0.9); const e = 1.2 + sweep; const tip = { x: c.x + (R + 18) * Math.cos(e), y: c.y - (R + 18) * Math.sin(e) }; this.Dot(sc, tip, 5, C.R); }
+    this.Tx(sc, { x: c.x, y: c.y + R + 34 }, 'wheel · angular drag', C.R, 12);
+    const gx0 = 290, gx1 = 610, gy0 = 200, gy1 = 450, base = gy1 - 20, sc1 = 200 / 10;
+    this.graphFrame(sc, gx0, gx1, gy0, gy1, 'speed over time', base);
+    this.plotHist(sc, s.dHist, 'v', s.physT, 7, gx0, gx1, base, sc1, gy0 + 2, gy1 - 2, C.B, 3);
+    this.plotHist(sc, s.dHist, 'w', s.physT, 7, gx0, gx1, base, sc1, gy0 + 2, gy1 - 2, C.R, 3);
+    this.Tx(sc, { x: gx1 - 10, y: gy0 + 18 }, '|v|', C.B, 12, 'end');
+    this.Tx(sc, { x: gx1 - 40, y: gy0 + 18 }, '|ω|', C.R, 12, 'end');
+    const half = (k) => k > 0.001 ? (Math.LN2 / k).toFixed(2) + ' s' : '∞';
+    Object.assign(r, { k: s.dK.toFixed(1), kVal: s.dK, ka: s.dKa.toFixed(1), kaVal: s.dKa, v: Math.abs(s.dV).toFixed(2) + ' m/s', w: Math.abs(s.dOm).toFixed(2) + ' rad/s',
+      keep: (Math.exp(-s.dK) * 100).toFixed(0) + '% / ' + (Math.exp(-s.dKa) * 100).toFixed(0) + '%', half: half(s.dK) + ' / ' + half(s.dKa),
+      hint: 'Push and spin · both re-launch when they stop', title: 'v · e^(−k t)  and  ω · e^(−k_ang t)' });
+  }
+
+  scenePhysSpring(sc, r) {
+    const s = this.state, C = this.C, ax = 150, top = 40, rest = 230, my = rest + s.spY * 60, mh = 22 + s.spM * 5, mw = 50 + s.spM * 6;
+    this.Po(sc, [{ x: 90, y: top - 14 }, { x: 210, y: top - 14 }, { x: 210, y: top }, { x: 90, y: top }], '#2E3748', 1);
+    let d = 'M' + ax + ' ' + top + ' L' + ax + ' ' + (top + 12);
+    const bot = my - mh / 2, n = 20;
+    for (let i = 1; i < n; i++) d += ' L' + (ax + (i % 2 ? 18 : -18)) + ' ' + this.r1(top + 12 + (bot - 12 - top - 12) * i / n);
+    d += ' L' + ax + ' ' + this.r1(bot - 12) + ' L' + ax + ' ' + this.r1(bot);
+    this.Pa(sc, d, '#C9D1E0', 2.5, 1);
+    this.L(sc, { x: 70, y: rest }, { x: 230, y: rest }, C.U, 1.5, 0.8, '5 5');
+    this.Tx(sc, { x: 234, y: rest + 4 }, 'rest', C.U, 11, 'start', 500);
+    this.Po(sc, [{ x: ax - mw / 2, y: my - mh / 2 }, { x: ax + mw / 2, y: my - mh / 2 }, { x: ax + mw / 2, y: my + mh / 2 }, { x: ax - mw / 2, y: my + mh / 2 }], '#C9D1E0', 1, '#0B0F16', 2);
+    this.Tx(sc, { x: ax, y: my + 4 }, s.spM.toFixed(1) + ' kg', '#0E1117', 11, 'middle', 600);
+    const F = -s.spK * s.spY - s.spC * s.spV;
+    if (Math.abs(F) > 0.2) { const len = Math.max(-150, Math.min(150, F * 3)); this.Ar(sc, { x: ax + mw / 2 + 16, y: my }, { x: ax + mw / 2 + 16, y: my - len }, C.A, 4); this.Tx(sc, { x: ax + mw / 2 + 26, y: my - len / 2 + 4 }, 'F', C.A, 12, 'start'); }
+    this.H(sc, { x: ax, y: my }, 'spMass', C.R);
+    const gx0 = 300, gx1 = 610, gy0 = 60, gy1 = 420, mid = 240, sc1 = 50;
+    this.graphFrame(sc, gx0, gx1, gy0, gy1, 'displacement x over time', mid);
+    this.plotHist(sc, s.spHist, 'y', s.physT, 7, gx0, gx1, mid, -sc1, gy0 + 2, gy1 - 2, C.R, 3);
+    sc.lines.push({ x1: 230, y1: this.r1(my), x2: gx1, y2: this.r1(my), stroke: C.R, sw: 1, op: 0.35, dash: '3 6' });
+    const w0 = Math.sqrt(s.spK / s.spM), z = s.spC / (2 * Math.sqrt(s.spK * s.spM));
+    const regime = Math.abs(z - 1) < 0.03 ? 'critically damped' : (z < 1 ? (z < 0.01 ? 'undamped: oscillates forever' : 'underdamped: bounces') : 'overdamped: creeps back');
+    Object.assign(r, { k: s.spK.toFixed(0) + ' N/m', kVal: s.spK, c: s.spC.toFixed(1), cVal: s.spC, m: s.spM.toFixed(1) + ' kg', mVal: s.spM,
+      x: s.spY.toFixed(2) + ' m (down is +)', F: F.toFixed(1) + ' N', T: (2 * Math.PI / w0).toFixed(2) + ' s', z: z.toFixed(2), regime,
+      hint: 'Drag the mass and let go', title: 'F = −k x − c v · ζ = ' + z.toFixed(2) });
+  }
+
   renderVals() {
     const s = this.state, topic = this.topicOf(), sc = this.sc(), r = {};
     const map = { dir: 'sceneDir', norm: 'sceneNorm', dot: 'sceneDot', cross: 'sceneCross', lerp: 'sceneLerp', slerp: 'sceneSlerp', inv: 'sceneInv', gimbal: 'sceneGimbal', quat: 'sceneQuat', sine: 'sceneSine', saw: 'sceneSaw', perlin: 'scenePerlin', voronoi: 'sceneVoronoi' };
     const isEase = topic.indexOf('ease') === 0;
+    map.physAccel = 'scenePhysAccel'; map.physDrag = 'scenePhysDrag'; map.physSpring = 'scenePhysSpring';
     if (isEase) this.sceneEase(sc, r, topic); else this[map[topic] || 'sceneDir'](sc, r);
     const topics = [['dir', '01', 'Directions', 'vec'], ['norm', '02', 'Normalize', 'vec'], ['dot', '03', 'Dot product', 'vec'], ['cross', '04', 'Cross product', 'vec'], ['lerp', '05', 'Lerp', 'vec'], ['inv', '06', 'Inverse lerp', 'vec'],
       ['quat', '01', 'Quaternions', 'rot'], ['gimbal', '02', 'Gimbal lock', 'rot'], ['slerp', '03', 'Slerp', 'rot'],
       ['sine', '01', 'Sine & cosine', 'wave'], ['saw', '02', 'Sawtooth', 'wave'], ['perlin', '03', 'Perlin noise', 'wave'], ['voronoi', '04', 'Voronoi', 'wave'],
-      ['easePoly', '01', 'Quad & Cubic', 'ease'], ['easeSine', '02', 'Sine & Expo', 'ease'], ['easeBack', '03', 'Back & Elastic', 'ease'], ['easeBounce', '04', 'Bounce', 'ease']];
+      ['easePoly', '01', 'Quad & Cubic', 'ease'], ['easeSine', '02', 'Sine & Expo', 'ease'], ['easeBack', '03', 'Back & Elastic', 'ease'], ['easeBounce', '04', 'Bounce', 'ease'],
+      ['physAccel', '01', 'Acceleration & impulse', 'phys'], ['physDrag', '02', 'Linear & angular drag', 'phys'], ['physSpring', '03', 'Springs', 'phys']];
     const catOf = (id) => (topics.find((x) => x[0] === id) || topics[0])[3], cat = catOf(topic), last = s.lastByCat || {};
-    const cats = [['vec', 'Vectors'], ['rot', 'Rotations'], ['wave', 'Waves & Noise'], ['ease', 'Easing']].map(([id, label]) => {
+    const cats = [['vec', 'Vectors'], ['rot', 'Rotations'], ['wave', 'Waves & Noise'], ['ease', 'Easing'], ['phys', 'Physics']].map(([id, label]) => {
       const on = id === cat, first = topics.find((x) => x[3] === id)[0];
       return { id, label, pressed: on, count: String(topics.filter((x) => x[3] === id).length), bg: on ? '#E6EAF2' : 'transparent', fg: on ? '#0E1117' : '#C9D1E0',
         pick: () => { if (!on) this.setState({ topic: last[id] || first, drag: null, lastByCat: { ...last, [cat]: topic } }); } };
@@ -1309,10 +1522,13 @@ class Component extends DCLogic {
       onMove: this.onMove, onUp: this.onUp,
       easeLinear: () => this.setState({ lerpEase: 'linear' }),
       easeSmooth: () => this.setState({ lerpEase: 'smooth' }),
+      impulseR: () => this.applyImpulse(1), impulseL: () => this.applyImpulse(-1), stopCart: () => this.setState({ paV: 0, paHist: s.paHist.concat([{ t: s.physT, v: s.paV }, { t: s.physT, v: 0, imp: true }]) }),
+      pushPuck: () => this.setState({ dV: Math.min(14, Math.abs(s.dV) + 6) }), spinWheel: () => this.setState({ dOm: Math.min(16, Math.abs(s.dOm) + 7) }),
+      pullSpring: () => this.setState({ spY: 1.6, spV: 0, spIdle: 0 }), critSpring: () => this.setState({ spC: Math.round(2 * Math.sqrt(s.spK * s.spM) * 10) / 10 }),
       toggleArrows: () => this.setState({ perlinArrows: !s.perlinArrows }),
       toggleLock: () => this.setState({ gPitch: gLocked ? 20 : 90 }),
       set: { crossAz: setZ('crossA'), crossBz: setZ('crossB'), crossYaw: (e) => this.setState({ crossYaw: parseFloat(e.target.value) * Math.PI / 180 }),
-        gYaw: num('gYaw'), sineFreq: num('sineFreq'), sineAmp: num('sineAmp'), sineShift: num('sineShift'), sawFreq: num('sawFreq'), perlinOct: num('perlinOct'), perlinScale: num('perlinScale'), vorCount: num('vorCount'), easeT: numPause('easeT'), gPitch: num('gPitch'), gRoll: numPause('gRoll'), lerpT: numPause('lerpT'), slerpT: numPause('slerpT'), invT: numPause('invT'), qAngle: numPause('qAngle'), qYaw: num('qYaw'), qPitch: num('qPitch') }
+        gYaw: num('gYaw'), sineFreq: num('sineFreq'), sineAmp: num('sineAmp'), sineShift: num('sineShift'), sawFreq: num('sawFreq'), perlinOct: num('perlinOct'), perlinScale: num('perlinScale'), vorCount: num('vorCount'), easeT: numPause('easeT'), paF: num('paF'), paM: num('paM'), paJ: num('paJ'), dK: num('dK'), dKa: num('dKa'), spK: num('spK'), spC: num('spC'), spM: num('spM'), gPitch: num('gPitch'), gRoll: numPause('gRoll'), lerpT: numPause('lerpT'), slerpT: numPause('slerpT'), invT: numPause('invT'), qAngle: numPause('qAngle'), qYaw: num('qYaw'), qPitch: num('qPitch') }
     };
   }
 }
